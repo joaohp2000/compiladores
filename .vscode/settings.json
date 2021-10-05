@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "analisador_lexico.h": "c",
-        "*.tcc": "c",
-        "tabela.h": "c",
-        "analisador_sintatico.h": "c",
-        "string.h": "c"
-    }
-}
