@@ -167,11 +167,11 @@ static void gerencia_atribuicao(FILE *arquivo, char caracter, tokens **token){
       atribuicao = realloc(atribuicao,(3));
       atribuicao[1] = caracter;
       atribuicao[2] = '\0';
-      inserir_lista(token, atribuicao, "Satribuicao");
+      inserir_lista(token, atribuicao, "satribuicao");
    }
    else{
       atribuicao[1] = '\0';
-      inserir_lista(token, atribuicao, "Sdoispontos");
+      inserir_lista(token, atribuicao, "sdoispontos");
       fseek(arquivo, -1L, SEEK_CUR); 
    }
    free(atribuicao);
@@ -182,15 +182,15 @@ static void gerencia_opAritmetico(FILE *arquivo, char caracter,tokens **token){
    
     if (caracter == '+'){
       opAritmetico[1]='\0';
-      inserir_lista(token, opAritmetico, "Smais");
+      inserir_lista(token, opAritmetico, "smais");
     }
    else if (caracter == '-'){
       opAritmetico[1]='\0';
-      inserir_lista(token, opAritmetico, "Smenos");
+      inserir_lista(token, opAritmetico, "smenos");
    }
    else if (caracter == '*'){
       opAritmetico[1]='\0';
-      inserir_lista(token, opAritmetico, "Smult");
+      inserir_lista(token, opAritmetico, "smult");
    }
    
    free(opAritmetico);
@@ -204,36 +204,36 @@ static void gerencia_opRelacional(FILE *arquivo, char caracter,tokens **token)
    if(caracter == '>' && opAux == '='){
       opRelacional[1] = opAux;
       opRelacional[2] = '\0';
-      inserir_lista(token, opRelacional, "Smaiorig");
+      inserir_lista(token, opRelacional, "smaiorig");
    }else if(caracter == '<' && opAux == '='){
       opRelacional[1] = opAux;
       opRelacional[2] = '\0';
-      inserir_lista(token, opRelacional, "Smenorig");
+      inserir_lista(token, opRelacional, "smenorig");
    }
    else if(caracter == '!' && opAux == '='){
       opRelacional[1] = opAux;
       opRelacional[2] = '\0';
-      inserir_lista(token, opRelacional, "Sdif");
+      inserir_lista(token, opRelacional, "sdif");
    }
       
    else if(caracter == '>'){
       opRelacional[1] = '\0';
-      inserir_lista(token, opRelacional, "Smaior");
+      inserir_lista(token, opRelacional, "smaior");
       fseek(arquivo, -1L, SEEK_CUR); 
    }
    else if(caracter == '<'){
       opRelacional[1] = '\0';
-      inserir_lista(token, opRelacional, "Smenor");
+      inserir_lista(token, opRelacional, "smenor");
       fseek(arquivo, -1L, SEEK_CUR); 
    }
    else if(caracter == '='){
       opRelacional[1] = '\0';
-      inserir_lista(token, opRelacional, "Sig");
+      inserir_lista(token, opRelacional, "sig");
       fseek(arquivo, -1L, SEEK_CUR); 
    }
    else if(caracter == '!'){
       opRelacional[1] = '\0';
-      inserir_lista(token, opRelacional, "Serro");
+      inserir_lista(token, opRelacional, "serro");
       fseek(arquivo, -1L, SEEK_CUR); 
    }
 
@@ -245,23 +245,23 @@ static void gerencia_pontuacao(FILE *arquivo, char caracter,tokens **token){
    
     if (caracter == ';'){
       pontucao[1]='\0';
-      inserir_lista(token, pontucao, "Sponto_virgula");
+      inserir_lista(token, pontucao, "sponto_virgula");
     }
    else if (caracter == '.'){
       pontucao[1]='\0';
-      inserir_lista(token,pontucao, "Sponto");
+      inserir_lista(token,pontucao, "sponto");
    }
    else if (caracter == '('){
       pontucao[1]='\0';
-      inserir_lista(token, pontucao, "Sabre_parenteses");
+      inserir_lista(token, pontucao, "sabre_parenteses");
    }
    else if (caracter == ')'){
       pontucao[1]='\0';
-      inserir_lista(token, pontucao, "Sfecha_parenteses");
+      inserir_lista(token, pontucao, "sfecha_parenteses");
    }
    else if (caracter == ','){
       pontucao[1]='\0';
-      inserir_lista(token, pontucao, "Svirgula");
+      inserir_lista(token, pontucao, "svirgula");
    }
    
    free(pontucao);

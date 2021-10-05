@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include"analisador_lexico/analisador_lexico.h"
-#include"tabela_simbolos/tabela.h"
+#include"../analisador_lexico/analisador_lexico.h"
+#include"tabela.h"
 #define MAX 100
 
 int main(int argc, char **argv){
@@ -25,12 +25,12 @@ int main(int argc, char **argv){
    while (caracter != EOF)
    {
       pega_token(arquivo, caracter, &token);
+      // pega o valor da li
       caracter = fgetc(arquivo);
    }
-   tabela = cria_tabela(token);
 
-   //imprimir_lista(token);
-   imprimir_tabela(tabela);
+   imprimir_lista(token);
+
    
    fclose(arquivo);
 }
