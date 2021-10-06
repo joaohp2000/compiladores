@@ -30,7 +30,7 @@ int main(int argc, char **argv){
    }
 
    imprimir_lista(token);
-
+   printf("%d", linha);
    
    fclose(arquivo);
 }

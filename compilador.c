@@ -2,18 +2,18 @@
 #include<stdlib.h>
 #include"analisador_lexico/analisador_lexico.h"
 #include"tabela_simbolos/tabela.h"
+#include"analisador_sintatico/analisador_sintatico.h"
 #define MAX 100
 
 int main(int argc, char **argv){
-   char caminho[MAX] = "../teste/";
-   sprintf(caminho, "%s%s",caminho,argv[1]);
+   char caminho[MAX] = "teste/sint16.txt";
+   //sprintf(caminho, "%s%s.txt",caminho,argv[1]);
    printf("Abrindo arquivo %s\n",caminho);
    FILE *arquivo;
    char caracter;
    tokens *token;
    token = NULL;
-   registro * tabela;
-
+   
    // Erro na abertura do arquivo
    if ((arquivo = fopen(caminho, "r")) == NULL)
    {
@@ -27,10 +27,8 @@ int main(int argc, char **argv){
       pega_token(arquivo, caracter, &token);
       caracter = fgetc(arquivo);
    }
-   tabela = cria_tabela(token);
-
-   //imprimir_lista(token);
-   imprimir_tabela(tabela);
+   imprimir_lista(token);
+   analisador_sintatico(token);
    
    fclose(arquivo);
 }

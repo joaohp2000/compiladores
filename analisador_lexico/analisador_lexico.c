@@ -4,64 +4,93 @@
 #include <string.h>
 #include <ctype.h>
 
-static char * verifica_palavras_reservadas(char *palavra);
+static char *verifica_palavras_reservadas(char *palavra);
 static void gerencia_numero(FILE *arquivo, char caracter, tokens **token);
-static void gerencia_palavra(FILE *arquivo, char caracter,tokens **token);
+static void gerencia_palavra(FILE *arquivo, char caracter, tokens **token);
 static void gerencia_atribuicao(FILE *arquivo, char caracter, tokens **token);
-static void gerencia_opAritmetico(FILE *arquivo, char caracter,tokens **token);
-static void gerencia_opRelacional(FILE *arquivo, char caracter,tokens **token);
-static void gerencia_pontuacao(FILE *arquivo, char caracter,tokens **token);
+static void gerencia_opAritmetico(FILE *arquivo, char caracter, tokens **token);
+static void gerencia_opRelacional(FILE *arquivo, char caracter, tokens **token);
+static void gerencia_pontuacao(FILE *arquivo, char caracter, tokens **token);
 
-
-static void gerencia_comentarios (FILE *arquivo, char caracter){
-      // Fazendo isso pra jogar fora os comentarios
-      // {testes}{}
-      while ((caracter != '}') && caracter != EOF){
-         caracter = fgetc(arquivo);
-      } 
-}
-
-static void gerencia_vazios(FILE *arquivo, char caracter){
-   while ((caracter == ' ') && caracter != EOF){
+int linha = 1;
+static void gerencia_comentarios(FILE *arquivo, char caracter)
+{
+   // Fazendo isso pra jogar fora os comentarios
+   // {testes}{}
+   while ((caracter != '}') && caracter != EOF)
+   {
       caracter = fgetc(arquivo);
-   } 
-  fseek(arquivo, -1L, SEEK_CUR);
+   }
 }
 
-void pega_token(FILE *arquivo, char caracter, tokens **token){
-  
-   if(caracter == ' ') {
-     // gerencia_vazios(arquivo, caracter);
+static void gerencia_vazios(FILE *arquivo, char caracter)
+{
+   while ((caracter == ' ') && caracter != EOF)
+   {
+      caracter = fgetc(arquivo);
    }
-   else {
-      if(caracter == '{'){
-         gerencia_comentarios(arquivo,caracter);
+   fseek(arquivo, -1L, SEEK_CUR);
+}
+
+void pega_token(FILE *arquivo, char caracter, tokens **token)
+{
+
+   if (caracter == ' ')
+   {
+      // gerencia_vazios(arquivo, caracter);
+   }
+   else
+   {
+      if (caracter == '{')
+      {
+         gerencia_comentarios(arquivo, caracter);
       }
-      else {  
-         if (isdigit(caracter)){
+      else
+      {
+         if (isdigit(caracter))
+         {
             gerencia_numero(arquivo, caracter, token);
          }
-         else {
-            if (isalpha(caracter)){
+         else
+         {
+            if (isalpha(caracter))
+            {
                gerencia_palavra(arquivo, caracter, token);
+            }
+            else
+            {
+               if (caracter == ':')
+               {
+                  gerencia_atribuicao(arquivo, caracter, token);
                }
-            else {
-               if (caracter == ':'){
-                  gerencia_atribuicao(arquivo, caracter, token);}
-               else{
-                  if (caracter == '+' || caracter == '-' || caracter == '*'){
+               else
+               {
+                  if (caracter == '+' || caracter == '-' || caracter == '*')
+                  {
                      gerencia_opAritmetico(arquivo, caracter, token);
                   }
-                  else{
-                     if (caracter == '<' || caracter == '>' || caracter == '=' || caracter == '!'){  
+                  else
+                  {
+                     if (caracter == '<' || caracter == '>' || caracter == '=' || caracter == '!')
+                     {
                         gerencia_opRelacional(arquivo, caracter, token);
                      }
-                     else{ 
-                        if (caracter == ';' || caracter == ',' || caracter == '(' || caracter == ')' || caracter == '.'){
+                     else
+                     {
+                        if (caracter == ';' || caracter == ',' || caracter == '(' || caracter == ')' || caracter == '.')
+                        {
                            gerencia_pontuacao(arquivo, caracter, token);
                         }
-                        else{
-                           if( caracter != '	'&& caracter != '\n' && caracter != 13 && caracter != ' ') inserir_lista(token, &caracter, "serro");
+                        else
+                        {
+                           if (caracter == '\n')
+                              linha++;
+                           else
+                           {
+                              int x;
+                              if (caracter != '	' && caracter != '\n' && caracter != ' ')
+                                 x=5;//inserir_lista(token, &caracter, "serro"); 
+                           }
                         }
                      }
                   }
@@ -73,45 +102,49 @@ void pega_token(FILE *arquivo, char caracter, tokens **token){
    return;
 }
 
-static void gerencia_numero(FILE *arquivo, char caracter,tokens **token){
+static void gerencia_numero(FILE *arquivo, char caracter, tokens **token)
+{
    char *num = malloc(sizeof(char));
    *num = caracter;
    caracter = fgetc(arquivo);
 
-   while(isdigit(caracter)){
+   while (isdigit(caracter))
+   {
       size_t tam = strlen(num);
-      num = realloc(num,(tam+2));
+      num = realloc(num, (tam + 2));
       num[tam] = caracter;
       num[tam + 1] = '\0';
       caracter = fgetc(arquivo);
    }
 
    inserir_lista(token, num, "snumero");
-   fseek(arquivo, -1L, SEEK_CUR); 
+   fseek(arquivo, -1L, SEEK_CUR);
    free(num);
 }
 
-static void gerencia_palavra(FILE *arquivo, char caracter,tokens **token){
+static void gerencia_palavra(FILE *arquivo, char caracter, tokens **token)
+{
    char *palavra = malloc(sizeof(char));
    FILE *aux = arquivo;
    *palavra = caracter;
    caracter = fgetc(aux);
-   
-   while(isalpha(caracter) ||  isdigit(caracter)){
+
+   while (isalpha(caracter) || isdigit(caracter))
+   {
       size_t tam = strlen(palavra);
-      palavra = realloc(palavra,(tam+2));
+      palavra = realloc(palavra, (tam + 2));
       palavra[tam] = caracter;
       palavra[tam + 1] = '\0';
       caracter = fgetc(aux);
-
    }
    inserir_lista(token, palavra, verifica_palavras_reservadas(palavra));
-   fseek(arquivo, -1L, SEEK_CUR); 
+   fseek(arquivo, -1L, SEEK_CUR);
    free(palavra);
 }
 
-static char * verifica_palavras_reservadas(char *palavra){
-   
+static char *verifica_palavras_reservadas(char *palavra)
+{
+
    if (!strcmp(palavra, "programa"))
       return "sprograma";
    else if (!strcmp(palavra, "se"))
@@ -124,8 +157,8 @@ static char * verifica_palavras_reservadas(char *palavra){
       return "senquanto";
    else if (!strcmp(palavra, "faca"))
       return "sfaca";
-   else if (!strcmp(palavra, "início"))
-      return "sinício";
+   else if (!strcmp(palavra, "inicio"))
+      return "sinicio";
    else if (!strcmp(palavra, "fim"))
       return "sfim";
    else if (!strcmp(palavra, "escreva"))
@@ -154,153 +187,178 @@ static char * verifica_palavras_reservadas(char *palavra){
       return "sou";
    else if (!strcmp(palavra, "nao"))
       return "snao";
-   else return "sidentificador";
+   else
+      return "sidentificador";
 }
 
-static void gerencia_atribuicao(FILE *arquivo, char caracter, tokens **token){
-   char *atribuicao = malloc(sizeof(char) *2);
+static void gerencia_atribuicao(FILE *arquivo, char caracter, tokens **token)
+{
+   char *atribuicao = malloc(sizeof(char) * 2);
    FILE *aux;
    *atribuicao = caracter;
-   aux=arquivo;
+   aux = arquivo;
    caracter = fgetc(aux);
-   if(caracter =='='){
-      atribuicao = realloc(atribuicao,(3));
+   if (caracter == '=')
+   {
+      atribuicao = realloc(atribuicao, (3));
       atribuicao[1] = caracter;
       atribuicao[2] = '\0';
       inserir_lista(token, atribuicao, "satribuicao");
    }
-   else{
+   else
+   {
       atribuicao[1] = '\0';
       inserir_lista(token, atribuicao, "sdoispontos");
-      fseek(arquivo, -1L, SEEK_CUR); 
+      fseek(arquivo, -1L, SEEK_CUR);
    }
    free(atribuicao);
 }
-static void gerencia_opAritmetico(FILE *arquivo, char caracter,tokens **token){
-    char *opAritmetico = malloc(sizeof(char)*2);
+static void gerencia_opAritmetico(FILE *arquivo, char caracter, tokens **token)
+{
+   char *opAritmetico = malloc(sizeof(char) * 2);
    *opAritmetico = caracter;
-   
-    if (caracter == '+'){
-      opAritmetico[1]='\0';
+
+   if (caracter == '+')
+   {
+      opAritmetico[1] = '\0';
       inserir_lista(token, opAritmetico, "smais");
-    }
-   else if (caracter == '-'){
-      opAritmetico[1]='\0';
+   }
+   else if (caracter == '-')
+   {
+      opAritmetico[1] = '\0';
       inserir_lista(token, opAritmetico, "smenos");
    }
-   else if (caracter == '*'){
-      opAritmetico[1]='\0';
+   else if (caracter == '*')
+   {
+      opAritmetico[1] = '\0';
       inserir_lista(token, opAritmetico, "smult");
    }
-   
+
    free(opAritmetico);
 }
-static void gerencia_opRelacional(FILE *arquivo, char caracter,tokens **token)
+static void gerencia_opRelacional(FILE *arquivo, char caracter, tokens **token)
 {
-   char *opRelacional = malloc(sizeof(char)*3);
+   char *opRelacional = malloc(sizeof(char) * 3);
    *opRelacional = caracter;
    char opAux;
    opAux = fgetc(arquivo);
-   if(caracter == '>' && opAux == '='){
+   if (caracter == '>' && opAux == '=')
+   {
       opRelacional[1] = opAux;
       opRelacional[2] = '\0';
       inserir_lista(token, opRelacional, "smaiorig");
-   }else if(caracter == '<' && opAux == '='){
+   }
+   else if (caracter == '<' && opAux == '=')
+   {
       opRelacional[1] = opAux;
       opRelacional[2] = '\0';
       inserir_lista(token, opRelacional, "smenorig");
    }
-   else if(caracter == '!' && opAux == '='){
+   else if (caracter == '!' && opAux == '=')
+   {
       opRelacional[1] = opAux;
       opRelacional[2] = '\0';
       inserir_lista(token, opRelacional, "sdif");
    }
-      
-   else if(caracter == '>'){
+
+   else if (caracter == '>')
+   {
       opRelacional[1] = '\0';
       inserir_lista(token, opRelacional, "smaior");
-      fseek(arquivo, -1L, SEEK_CUR); 
+      fseek(arquivo, -1L, SEEK_CUR);
    }
-   else if(caracter == '<'){
+   else if (caracter == '<')
+   {
       opRelacional[1] = '\0';
       inserir_lista(token, opRelacional, "smenor");
-      fseek(arquivo, -1L, SEEK_CUR); 
+      fseek(arquivo, -1L, SEEK_CUR);
    }
-   else if(caracter == '='){
+   else if (caracter == '=')
+   {
       opRelacional[1] = '\0';
       inserir_lista(token, opRelacional, "sig");
-      fseek(arquivo, -1L, SEEK_CUR); 
+      fseek(arquivo, -1L, SEEK_CUR);
    }
-   else if(caracter == '!'){
+   else if (caracter == '!')
+   {
       opRelacional[1] = '\0';
       inserir_lista(token, opRelacional, "serro");
-      fseek(arquivo, -1L, SEEK_CUR); 
+      fseek(arquivo, -1L, SEEK_CUR);
    }
 
    free(opRelacional);
 }
-static void gerencia_pontuacao(FILE *arquivo, char caracter,tokens **token){
-   char *pontucao = malloc(sizeof(char)*2);
+static void gerencia_pontuacao(FILE *arquivo, char caracter, tokens **token)
+{
+   char *pontucao = malloc(sizeof(char) * 2);
    *pontucao = caracter;
-   
-    if (caracter == ';'){
-      pontucao[1]='\0';
+
+   if (caracter == ';')
+   {
+      pontucao[1] = '\0';
       inserir_lista(token, pontucao, "sponto_virgula");
-    }
-   else if (caracter == '.'){
-      pontucao[1]='\0';
-      inserir_lista(token,pontucao, "sponto");
    }
-   else if (caracter == '('){
-      pontucao[1]='\0';
+   else if (caracter == '.')
+   {
+      pontucao[1] = '\0';
+      inserir_lista(token, pontucao, "sponto");
+   }
+   else if (caracter == '(')
+   {
+      pontucao[1] = '\0';
       inserir_lista(token, pontucao, "sabre_parenteses");
    }
-   else if (caracter == ')'){
-      pontucao[1]='\0';
+   else if (caracter == ')')
+   {
+      pontucao[1] = '\0';
       inserir_lista(token, pontucao, "sfecha_parenteses");
    }
-   else if (caracter == ','){
-      pontucao[1]='\0';
+   else if (caracter == ',')
+   {
+      pontucao[1] = '\0';
       inserir_lista(token, pontucao, "svirgula");
    }
-   
+
    free(pontucao);
 }
 
+void inserir_lista(tokens **lista, char lexema[], char simbolo[])
+{
 
-void inserir_lista(tokens **lista, char lexema[], char simbolo[]) {
-   
    tokens *arquivo;
    arquivo = *lista;
    int lex_tam = strlen(lexema);
    int sim_tam = strlen(simbolo);
-   
+
    tokens *novo = (tokens *)malloc((sizeof(tokens *)) + lex_tam + sim_tam); // cria um novo nó
    novo->lexema = (char *)malloc(sizeof(lex_tam));
-   sprintf(novo->lexema,"%s",lexema);
+   sprintf(novo->lexema, "%s", lexema);
    novo->simbolo = simbolo;
+   novo->_linha = linha;
    novo->prox = NULL;
-   
-   if(arquivo == NULL){ // Lista vazia
-      *lista = novo;  
-   } 
+
+   if (arquivo == NULL)
+   { // Lista vazia
+      *lista = novo;
+   }
    else // Lista não vazia
-   { 
-      while(arquivo->prox != NULL){
+   {
+      while (arquivo->prox != NULL)
+      {
          arquivo = arquivo->prox;
       }
       arquivo->prox = novo;
    }
-    
 }
-void imprimir_lista(tokens *lista) {
-   
+void imprimir_lista(tokens *lista)
+{
+
    tokens *arquivo;
    arquivo = lista;
-   while(arquivo != NULL){
+   while (arquivo != NULL)
+   {
       printf("%s  | %s\n", arquivo->lexema, arquivo->simbolo);
       arquivo = arquivo->prox;
    }
    printf("\n\n");
 }
-

@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "analisador_lexico.h": "c",
+        "analisador_sintatico.h": "c"
+    }
+}

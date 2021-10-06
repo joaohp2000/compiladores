@@ -21,9 +21,10 @@ os campos tipo que possuem o valor variável pelo tipo agora localizado.*/
 
 struct elemento
 {
+    char *simbolo;
     char *lexema;
     u_int8_t escopo;
-    char tipo[20];
+    char *tipo;
     void *memoria;
 };
 
@@ -36,8 +37,11 @@ struct registro
 };
 
 typedef struct registro registro;
+extern registro *tabela;
 
+void insere_tipo_var(registro *pri, tokens *token);
 
+void insere_tabela(registro **pri, tokens *token, int nivel,void *rotulo );
 
 registro * cria_tabela(tokens * lista);
 
@@ -51,9 +55,9 @@ void imprimir_tabela(registro *lista);
 
 int pilha_vazia(registro * tabela);
 
-registro *busca_incidente(registro * _registro, registro *tabela);
+registro *busca_incidente(tokens *token, registro *tabela);
 
-registro *busca_duplicatas(registro * _registro);
+registro *busca_duplicatas(registro * _registro, tokens *token); // RETORNA NULL SE NAO HOUVER DUPLICATA
 
 elemento pop(registro **tabela);
 

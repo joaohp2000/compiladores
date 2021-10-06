@@ -6,7 +6,6 @@
 #include <sys/types.h>
 #include "../analisador_lexico/analisador_lexico.h"
 
-
 const char *tipo_null = "null";
 
 registro *novo_registro()
@@ -29,22 +28,26 @@ void novo_elemento(elemento *x, char *lexema, char *tipo, u_int8_t escopo)
     x->escopo = escopo;
 }
 
-registro *busca_incidente(registro * _registro, registro *tabela)
+registro *busca_incidente(tokens *token, registro *tabela)
 {
     registro *p;
     p = tabela;
-    while (!pilha_vazia(p) && !strcmp(_registro->conteudo.lexema, p->conteudo.lexema))
+    while (!pilha_vazia(p) && !strcmp(token->lexema, p->conteudo.lexema))
         p = p->prox;
     return p;
 }
 
-registro *busca_duplicatas(registro * _registro)
+registro *busca_duplicatas(registro * _registro, tokens *token)
 {
     registro *p;
     p = _registro;
-    while (!pilha_vazia(p) && !strcmp(_registro->conteudo.lexema, p->conteudo.lexema) && p->conteudo.escopo!=1)
+
+    while (!pilha_vazia(p) && !strcmp(_registro->conteudo.lexema, token->lexema) && p->conteudo.escopo!=1){
         p = p->prox;
-    return p;
+    }
+    if (p->conteudo.escopo==1)
+        return NULL;
+    else return p;
 }
 
 elemento pop(registro **tabela){
@@ -140,9 +143,31 @@ void push(elemento x, registro **pri)
     *pri = novo;
 }
 
+void insere_tabela(registro **pri, tokens *token, int nivel,void *rotulo)
+{
+    registro *p, *novo;
+    p = *pri;
+    novo = novo_registro();
+    novo->conteudo.lexema = token->lexema;
+    novo->conteudo.simbolo = token->simbolo;
+    novo->conteudo.escopo =nivel;
+    novo->prox =p;
+    *pri = novo;
+}
+
+void insere_tipo_var(registro *pri, tokens *token){
+    registro *aux =pri;
+    while(aux->conteudo.escopo != 1)
+    {
+        if(!strcmp(aux->conteudo.simbolo, "sidentificador")){
+            aux->conteudo.tipo=token->simbolo;
+        }
+        aux=aux->prox;
+    }   
+}
+
 void imprimir_tabela(registro *lista)
 {
-
     registro *p;
     p = lista;
     while (!pilha_vazia(p))
@@ -152,3 +177,5 @@ void imprimir_tabela(registro *lista)
     }
     printf("\n\n");
 }
+
+registro *tabela =NULL;
