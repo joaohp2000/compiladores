@@ -6,7 +6,7 @@
 #include <sys/types.h>
 #include "../analisador_lexico/analisador_lexico.h"
 
-const char *tipo_null = "null";
+char *tipo_null = "null";
 
 registro *novo_registro()
 {
@@ -28,26 +28,35 @@ void novo_elemento(elemento *x, char *lexema, char *tipo, u_int8_t escopo)
     x->escopo = escopo;
 }
 
-registro *busca_incidente(tokens *token, registro *tabela)
+int busca_incidente(tokens *token, registro *tabela)
 {
     registro *p;
     p = tabela;
-    while (!pilha_vazia(p) && !strcmp(token->lexema, p->conteudo.lexema))
+    while (!pilha_vazia(p) && strcmp(token->lexema, p->conteudo.lexema))
         p = p->prox;
-    return p;
+    if(pilha_vazia(p)) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
 }
 
-registro *busca_duplicatas(registro * _registro, tokens *token)
+int busca_duplicatas(registro * _registro, tokens *token)
 {
     registro *p;
-    p = _registro;
-
-    while (!pilha_vazia(p) && !strcmp(_registro->conteudo.lexema, token->lexema) && p->conteudo.escopo!=1){
+    p = tabela;
+    while (!pilha_vazia(p) && strcmp(token->lexema, p->conteudo.lexema) && p->conteudo.escopo!=1)
         p = p->prox;
+    
+    if(p->conteudo.escopo==1) {
+        return 1;
     }
-    if (p->conteudo.escopo==1)
-        return NULL;
-    else return p;
+    else {
+      //printf("%s : %s ja existe\n\n", p->conteudo.lexema, token->lexema);
+        return 0;
+    }
+
 }
 
 elemento pop(registro **tabela){
@@ -151,23 +160,31 @@ void insere_tabela(registro **pri, tokens *token, int nivel,void *rotulo)
     novo->conteudo.lexema = token->lexema;
     novo->conteudo.simbolo = token->simbolo;
     novo->conteudo.escopo =nivel;
+    sprintf(novo->conteudo.tipo, "null"); 
     novo->prox =p;
     *pri = novo;
 }
 
-void insere_tipo_var(registro *pri, tokens *token){
+void insere_tipo(registro *pri, tokens *token,int func_var){
     registro *aux =pri;
-    while(aux->conteudo.escopo != 1)
+    if(func_var == 0){
+    while(aux->conteudo.escopo != 1 && !strcmp(aux->conteudo.tipo,tipo_null))
     {
         if(!strcmp(aux->conteudo.simbolo, "sidentificador")){
-            aux->conteudo.tipo=token->simbolo;
+            sprintf(aux->conteudo.tipo, "%s",token->simbolo);
         }
         aux=aux->prox;
-    }   
+    }  
+    }
+    else{
+        sprintf(aux->conteudo.tipo, "func_%s",token->simbolo);
+ 
+    } 
 }
 
 void imprimir_tabela(registro *lista)
 {
+
     registro *p;
     p = lista;
     while (!pilha_vazia(p))
@@ -177,5 +194,17 @@ void imprimir_tabela(registro *lista)
     }
     printf("\n\n");
 }
-
+registro * pesquisa_tabela(registro * tabela, tokens * token){
+    registro *p;
+    p = tabela;
+    while(!pilha_vazia(p) && strcmp(token->lexema, p->conteudo.lexema)){
+      p = p->prox;  
+    }
+    if(pilha_vazia(p)) {
+        return NULL;
+    }
+    else {
+        return p;
+    }
+}
 registro *tabela =NULL;

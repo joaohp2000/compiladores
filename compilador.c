@@ -6,8 +6,8 @@
 #define MAX 100
 
 int main(int argc, char **argv){
-   char caminho[MAX] = "teste/sint16.txt";
-   //sprintf(caminho, "%s%s.txt",caminho,argv[1]);
+   char caminho[MAX];// = "teste/sint";
+   sprintf(caminho, "teste/sint%s.txt",argv[1]);
    printf("Abrindo arquivo %s\n",caminho);
    FILE *arquivo;
    char caracter;
@@ -27,8 +27,8 @@ int main(int argc, char **argv){
       pega_token(arquivo, caracter, &token);
       caracter = fgetc(arquivo);
    }
-   imprimir_lista(token);
+   //imprimir_lista(token);
    analisador_sintatico(token);
-   
+   imprimir_tabela(tabela);
    fclose(arquivo);
 }

@@ -24,7 +24,7 @@ struct elemento
     char *simbolo;
     char *lexema;
     u_int8_t escopo;
-    char *tipo;
+    char tipo[15];
     void *memoria;
 };
 
@@ -39,7 +39,7 @@ struct registro
 typedef struct registro registro;
 extern registro *tabela;
 
-void insere_tipo_var(registro *pri, tokens *token);
+void insere_tipo(registro *pri, tokens *token, int func_var);
 
 void insere_tabela(registro **pri, tokens *token, int nivel,void *rotulo );
 
@@ -55,13 +55,15 @@ void imprimir_tabela(registro *lista);
 
 int pilha_vazia(registro * tabela);
 
-registro *busca_incidente(tokens *token, registro *tabela);
+int busca_incidente(tokens *token, registro *tabela);
 
-registro *busca_duplicatas(registro * _registro, tokens *token); // RETORNA NULL SE NAO HOUVER DUPLICATA
+int busca_duplicatas(registro * _registro, tokens *token); // RETORNA NULL SE NAO HOUVER DUPLICATA
 
 elemento pop(registro **tabela);
 
 void libera_mem(registro * element);
 
 registro *novo_registro();
+
+registro *pesquisa_tabela(registro * tabela, tokens * token);
 #endif

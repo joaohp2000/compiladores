@@ -49,10 +49,10 @@ char *erros[] = {"Deve iniciar com 'programa'", //0
                  "Espera-se 'faca'",//14
                  "Espera-se fechar parenteses", //15
                  "Expressão inválida", //16
-                 "Variavel invalida ou inexistente" //17
+                 "Variavel invalida ou inexistente", //17
                  "Variavel não declarada", //18
-                 "Espera-se abertura de parenteses"//19
-
+                 "Espera-se abertura de parenteses",//19
+                 "Variavel ou função não declarada"//20
                  };
 void error(tokens **token, int num_erro)
 {
@@ -71,7 +71,7 @@ void analisador_sintatico(tokens *lista)
       lx(&token);
       if (cp(&token, "sidentificador"))
       {
-         //insere_tabela(&tabela, token, 1, NULL);
+         insere_tabela(&tabela, token, 1, NULL);
          lx(&token);
          if (cp(&token, "sponto_virgula"))
          {
@@ -150,9 +150,9 @@ void analisa_variaveis(tokens **token)
    {
       if (cp(token, "sidentificador"))
       {
-         // if (busca_duplicatas(tabela, *token) == NULL)
-         // {
-           // insere_tabela(&tabela, *token,0,NULL);
+          if (busca_duplicatas(tabela, *token))
+          {
+            insere_tabela(&tabela, *token,0,NULL);
             lx(token);
             
             if (cp(token, "svirgula") || cp(token, "sdoispontos"))
@@ -166,9 +166,9 @@ void analisa_variaveis(tokens **token)
             }
             else
                error(token,6);
-         // }
-         // else
-         //    error(token,5);
+            }
+            else
+               error(token,5);
       }
       else
          error(token, 4);
@@ -185,7 +185,7 @@ void analisa_tipo(tokens **token)
    }
    else
    {
-      //insere_tipo_var(tabela, *token);
+      insere_tipo(tabela, *token, 0);
       // COLOCA_TIPO_TABELA(TOKEN.LEXEMA)
    }
    lx(token);
@@ -272,8 +272,8 @@ void analisa_escreva(tokens **token)
       lx(token);
       if (cp(token, "sidentificador"))
       {
-         //if( busca_incidente(*token, tabela) == NULL)
-         //{
+         if( !busca_incidente(*token, tabela))
+         {
          lx(token);
          if (cp(token, "sfecha_parenteses"))
          {
@@ -281,9 +281,9 @@ void analisa_escreva(tokens **token)
          }
          else
             error(token,15);
-        // }
-         //else
-          //error(token,18);
+         }
+         else
+          error(token,18);
       }
       else
          error(token,17);
@@ -300,7 +300,7 @@ void analisa_leia(tokens **token)
       lx(token);
       if (cp(token, "sidentificador"))
       {
-         // if( busca_incidente(*token, tabela) == NULL){
+          if( !busca_incidente(*token, tabela)){
          lx(token);
          if (cp(token, "sfecha_parenteses"))
             lx(token);
@@ -308,9 +308,9 @@ void analisa_leia(tokens **token)
             error(token, 15);
          }
          else error(token, 18);
-    //  }
-     // else
-       //  error(token,17);
+      }
+      else
+        error(token,17);
    }
    else
       error(token,19);
@@ -391,8 +391,8 @@ void analisa_declaracao_procedimento(tokens **token)
    //nível := “L” (marca ou novo galho)
    if (cp(token, "sidentificador")) //nome do procedimento
    {
-      //if(busca_incidente(*token, tabela)==NULL){
-         //insere_tabela(&tabela,*token,1,NULL);
+      if(busca_incidente(*token, tabela)){
+         insere_tabela(&tabela,*token,1,NULL);
          lx(token);
          if (cp(token, "sponto_virgula"))
          {
@@ -400,10 +400,10 @@ void analisa_declaracao_procedimento(tokens **token)
          }
          else
             error(token,2);
-     // }
-      //else{ 
-       //  error(token,9);
-     // }
+      }
+      else{ 
+         error(token,9);
+      }
    }
    else{
       error(token,10);
@@ -417,14 +417,15 @@ void analisa_declaracao_funcao(tokens **token)
    //nível := “L” (marca ou novo galho)
    if (cp(token, "sidentificador"))
    {
-     // if(busca_incidente(*token, tabela)==NULL){
-         //insere_tabela(&tabela,*token,1,NULL);
+       if(busca_incidente(*token, tabela)){
+         insere_tabela(&tabela,*token,1,NULL);
          lx(token);
          if (cp(token, "sdoispontos"))
          {
             lx(token);
             if (cp(token, "sinteiro") || cp(token, "sbooleano"))
             {
+               insere_tipo(tabela, *token, 1);
                lx(token);
                if (cp(token, "sponto_virgula"))
                {
@@ -432,15 +433,15 @@ void analisa_declaracao_funcao(tokens **token)
                }
             }
             else
-               (token,8);
+               error(token,8);
          }
          else
             error(token, 11);
          // }else error(token);
-     // }
-     // else{
-      //   error(token,9);
-      //}
+      }
+      else{
+         error(token,9);
+      }
    }
    else
       error(token,10);
@@ -491,9 +492,19 @@ void analisa_fator(tokens **token)
       // Então Se (TabSimb[ind].tipo = “função inteiro”) ou
       // (TabSimb[ind].tipo = “função booleano”)
       // Então
-      lx(token); // Analisa chamada de função
-      // Senão Léxico(token)
-      // Senão ERRO
+      registro * aux_cel;
+      if ((aux_cel = pesquisa_tabela(tabela, *token)) != NULL){
+         if(!strcmp(aux_cel->conteudo.tipo, "func_sinterio") || !strcmp(aux_cel->conteudo.tipo, "func_sbooleano")){
+            lx(token); // Analisa chamada de função
+         }
+         else{
+            lx(token); 
+         }
+      }
+      else{
+         error(token,20);
+      }
+
    }
    else if (cp(token, "snumero"))
    {
