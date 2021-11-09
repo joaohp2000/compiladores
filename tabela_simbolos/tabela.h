@@ -66,4 +66,6 @@ void libera_mem(registro * element);
 registro *novo_registro();
 
 registro *pesquisa_tabela(registro * tabela, tokens * token);
+
+void desempilha(registro **lista);
 #endif

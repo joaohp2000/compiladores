@@ -34,6 +34,7 @@ fim;
 inicio
     analisa1;
     analisa2;
+    analisa3;
     se b > (c+ a*a)
     entao escreva(b)
     senao escreva(c)

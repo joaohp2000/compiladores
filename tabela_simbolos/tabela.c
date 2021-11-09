@@ -64,9 +64,9 @@ elemento pop(registro **tabela){
     bzero(&_registro, sizeof(elemento));
     registro *aux = *tabela;
     if(!pilha_vazia(aux)) {
-        _registro = aux->conteudo;
+        memcpy(&_registro, &(aux->conteudo), sizeof(elemento));
         *tabela = aux->prox;
-        libera_mem(aux);
+        free(aux);
     }
     return _registro;
 }
@@ -80,7 +80,7 @@ registro *cria_tabela(tokens *lista)
 {
     tokens *p = lista;
     elemento campos;
-    registro *aux, *tabela;
+    registro  *tabela;
     char *tipo;
 
     tabela = NULL;
@@ -208,3 +208,18 @@ registro * pesquisa_tabela(registro * tabela, tokens * token){
     }
 }
 registro *tabela =NULL;
+
+void desempilha(registro **lista){
+    
+    while((*lista)->conteudo.escopo != 1 && !pilha_vazia(*lista)){
+        (*lista) = (*lista)->prox;
+    }
+    
+    if(lista !=NULL){
+        (*lista)->conteudo.escopo = 0;
+    }
+    else{
+        printf("Error");
+        exit(-1);
+    }
+}

@@ -22,7 +22,7 @@ static void gerencia_comentarios(FILE *arquivo, char caracter)
       caracter = fgetc(arquivo);
    }
 }
-
+/*
 static void gerencia_vazios(FILE *arquivo, char caracter)
 {
    while ((caracter == ' ') && caracter != EOF)
@@ -31,7 +31,7 @@ static void gerencia_vazios(FILE *arquivo, char caracter)
    }
    fseek(arquivo, -1L, SEEK_CUR);
 }
-
+*/
 void pega_token(FILE *arquivo, char caracter, tokens **token)
 {
 
@@ -87,9 +87,8 @@ void pega_token(FILE *arquivo, char caracter, tokens **token)
                               linha++;
                            else
                            {
-                              int x;
-                              if (caracter != '	' && caracter != '\n' && caracter != ' ')
-                                 x=5;//inserir_lista(token, &caracter, "serro"); 
+                              if (caracter != ' ' && caracter != '\n' && caracter != ' ' && caracter != 8)
+                                 return;
                            }
                         }
                      }
@@ -99,7 +98,6 @@ void pega_token(FILE *arquivo, char caracter, tokens **token)
          }
       }
    }
-   return;
 }
 
 static void gerencia_numero(FILE *arquivo, char caracter, tokens **token)

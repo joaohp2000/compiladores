@@ -5,6 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "analisador_sintatico.h"
+#include "../analisador_semantico/analisador_semantico.h"
 /*Def rotulo inteiro
 início
  rotulo:= 1
@@ -52,7 +53,7 @@ char *erros[] = {"Deve iniciar com 'programa'", //0
                  "Variavel invalida ou inexistente", //17
                  "Variavel não declarada", //18
                  "Espera-se abertura de parenteses",//19
-                 "Variavel ou função não declarada"//20
+                 "Variavel ou função ou procedimento não declarada"//20
                  };
 void error(tokens **token, int num_erro)
 {
@@ -250,17 +251,31 @@ void analisa_comando_simples(tokens **token)
 
 void analisa_atrib_chprocedimento(tokens **token)
 {
+
+   
+   if( !busca_incidente(*token, tabela)){
+   salva_var(*token);
    lx(token);
    if (cp(token, "satribuicao"))
    {
       // analisa atribuição //// analisa_expressao(token);
+      Stack *saida;
+      int retorno;
       lx(token);
+      salva_expressao(*token);
       analisa_expressao(token);
+      _fim_expressao(*token);
+      saida = In2Pos();
+      retorno = valida_atribuicao(saida);
    }
    else
    {
       // Chamada_procedimento
 
+   }
+   }
+   else{
+      error(token, 20);
    }
 }
 
@@ -408,7 +423,7 @@ void analisa_declaracao_procedimento(tokens **token)
    else{
       error(token,10);
    }
-
+   desempilha(&tabela);
 }
 
 void analisa_declaracao_funcao(tokens **token)
@@ -445,6 +460,7 @@ void analisa_declaracao_funcao(tokens **token)
    }
    else
       error(token,10);
+   desempilha(&tabela);
 }
 
 void analisa_expressao(tokens **token)
@@ -455,6 +471,7 @@ void analisa_expressao(tokens **token)
       lx(token);
       analisa_expressao_simples(token);
    }
+   
 }
 
 void analisa_expressao_simples(tokens **token)

@@ -7,7 +7,7 @@ if [ $1 = "as" ]
 elif [ $1 = "comp" ]
     then
     echo "Compilando compilador: "
-    gcc compilador.c analisador_sintatico/analisador_sintatico.c tabela_simbolos/tabela.c analisador_lexico/analisador_lexico.c -o comp -g
+    gcc -Wall compilador.c analisador_sintatico/analisador_sintatico.c tabela_simbolos/tabela.c analisador_lexico/analisador_lexico.c analisador_semantico/analisador_semantico.c -o comp -g
 else
     echo "Erro:"
 fi
