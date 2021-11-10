@@ -51,7 +51,7 @@ void unario(tokens *token, Stack **pilha, Stack **lista)
   operadores(pilha, lista, novo);
 }
 // Transformar de infixa para posfixa
-Stack * In2Pos()
+Stack *In2Pos()
 {
   tokens *token = expressao;
   Stack *pilha = NULL;
@@ -74,7 +74,6 @@ Stack * In2Pos()
       if (cp(&token, "sidentificador") || cp(&token, "snumero"))
       {
         insere_lista(&lista, token_to_stack(token));
-        
       }
       else
       {
@@ -84,7 +83,7 @@ Stack * In2Pos()
         }
         else
         {
-          
+
           operadores(&pilha, &lista, token);
         }
       }
@@ -318,27 +317,32 @@ int valida_expressao(Stack *lista)
   }
   else
   {
-    count = valida_expressao(lista->prox);
-    while (lista->prox != NULL)
+    if (lista->prox != NULL)
     {
-      if (count != 0)
+      count = valida_expressao(lista->prox);
+      while (lista->prox != NULL)
       {
-        count--;
-        return count;
-      }
-      else
-      {
-        if (!strcmp((lista->prox)->simbolo, "sunario") || !strcmp((lista->prox)->simbolo, "snao"))
-          lista = valida_tipo(lista, NULL, (lista->prox));
+        if (count != 0)
+        {
+          count--;
+          return count;
+        }
         else
-          lista = valida_tipo(lista, lista->prox, (lista->prox)->prox);
-        if (lista->prox == NULL)
-          return 1;
-        if (lista == NULL)
-          return 0;
-        count = valida_expressao(lista->prox);
+        {
+          if (!strcmp((lista->prox)->simbolo, "sunario") || !strcmp((lista->prox)->simbolo, "snao"))
+            lista = valida_tipo(lista, NULL, (lista->prox));
+          else
+            lista = valida_tipo(lista, lista->prox, (lista->prox)->prox);
+          if (lista->prox == NULL)
+            return 1;
+          if (lista == NULL)
+            return 0;
+          count = valida_expressao(lista->prox);
+        }
       }
     }
+    else
+      return 1;
   }
 }
 Stack *valida_tipo(Stack *fat1, Stack *fat2, Stack *op)
@@ -395,14 +399,15 @@ int tabela_tipos(Stack *fat1, Stack *fat2, Stack *op)
           else
             retorna = 0;
         }
-        else{
-          if (!strcmp(op->simbolo, "sunario"))
+        else
         {
-          if (!strcmp(fat1->tipo, "sinteiro"))
-            retorna = 1;
-          else
-            retorna = 0;
-        }
+          if (!strcmp(op->simbolo, "sunario"))
+          {
+            if (!strcmp(fat1->tipo, "sinteiro"))
+              retorna = 1;
+            else
+              retorna = 0;
+          }
         }
       }
     }
@@ -410,16 +415,67 @@ int tabela_tipos(Stack *fat1, Stack *fat2, Stack *op)
   return retorna;
 }
 
-
-int valida_atribuicao(Stack *lista){
+int valida_atribuicao(Stack *lista)
+{
   int rt = 0;
-  if(valida_expressao(lista)){
-    if(strcmp(lista->tipo, (pesquisa_tabela(tabela, var)->conteudo.tipo))){
-      printf("(linha : %d)Atribuição de Tipos diferentes. Varivel %s ", var->_linha,var->lexema);
-      rt =0;
-      exit(0);
+  registro *aux = pesquisa_tabela(tabela, var);
+  if (valida_expressao(lista))
+  {
+    if (!strcmp(lista->tipo, "func_sinteiro") || !strcmp(lista->tipo, "func_sbooleano"))
+    {
+      if (!strcmp(lista->tipo, "func_sinteiro") && !strcmp(aux->conteudo.tipo, "sinteiro"))
+      {
+        rt = 1;
+      }
+      else
+      {
+        if (!strcmp(lista->tipo, "func_sbooleano") && !strcmp(aux->conteudo.tipo, "sbooleano"))
+        {
+          rt = 1;
+        }
+        else
+        {
+          printf("(linha : %d)Atribuição de Tipos diferentes. Varivel %s ", var->_linha, var->lexema);
+          rt = 0;
+          exit(0);
+        }
+      }
     }
-    else rt = 1;
+    else
+    {
+
+      if (!strcmp((aux->conteudo.tipo), "func_sinteiro") || !strcmp((aux->conteudo.tipo), "func_sbooleano"))
+      {
+        if (!strcmp((aux->conteudo.tipo), "func_sinteiro") && !strcmp(lista->tipo, "sinteiro"))
+        {
+          rt = 1;
+        }
+        else
+        {
+          if (!strcmp((aux->conteudo.tipo), "func_sbooleano") && !strcmp(lista->tipo, "sbooleano"))
+          {
+            rt = 1;
+          }
+          else
+          {
+            printf("(linha : %d)Atribuição de Tipos diferentes. Varivel %s ", var->_linha, var->lexema);
+            rt = 0;
+            exit(0);
+          }
+        }
+      }
+      else
+      {
+        if (strcmp(lista->tipo, (pesquisa_tabela(tabela, var)->conteudo.tipo)))
+        {
+          printf("(linha : %d)Atribuição de Tipos diferentes. Varivel %s ", var->_linha, var->lexema);
+          rt = 0;
+          exit(0);
+        }
+        else
+          rt = 1;
+      }
+    }
   }
   return rt;
 }

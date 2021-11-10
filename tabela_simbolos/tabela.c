@@ -50,6 +50,12 @@ int busca_duplicatas(registro * _registro, tokens *token)
         p = p->prox;
     
     if(p->conteudo.escopo==1) {
+        while(!pilha_vazia(p)){
+            if(p->conteudo.escopo==1 && !strcmp(token->lexema, p->conteudo.lexema)){
+                return 0;
+            }
+            p=p->prox;
+        }  
         return 1;
     }
     else {

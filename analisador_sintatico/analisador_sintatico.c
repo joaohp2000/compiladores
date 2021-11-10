@@ -32,29 +32,30 @@ senão ERRO
  fim
  senão ERRO
 fim.*/
-tokens **token =NULL;
-char *erros[] = {"Deve iniciar com 'programa'", //0
-                 "'Programa' deve ser sucedido por um nome", //1
-                 "Falta ponto e virgula", //2
-                 "Falta o ponto", //3
-                 "Variavel Sem nome",  //4 
-                 "Variavel duplicada", // 5
-                 "O simbolo apos a variavel é invalido", //6
-                 " ':' invalido", //7
-                 "Tipo invalido", //8
-                 "O procedimento ou função ja existe",//9
-                 "Procedimento/função nao possui nome",//10
-                 ": esperado", //11
-                 "Espera-se 'inicio'",//12
-                 "Espera-se 'entao'",//13
-                 "Espera-se 'faca'",//14
-                 "Espera-se fechar parenteses", //15
-                 "Expressão inválida", //16
-                 "Variavel invalida ou inexistente", //17
-                 "Variavel não declarada", //18
-                 "Espera-se abertura de parenteses",//19
-                 "Variavel ou função ou procedimento não declarada"//20
-                 };
+tokens **token = NULL;
+char *erros[] = {
+    "Deve iniciar com 'programa'",                     //0
+    "'Programa' deve ser sucedido por um nome",        //1
+    "Falta ponto e virgula",                           //2
+    "Falta o ponto",                                   //3
+    "Variavel Sem nome",                               //4
+    "Variavel duplicada",                              // 5
+    "O simbolo apos a variavel é invalido",            //6
+    " ':' invalido",                                   //7
+    "Tipo invalido",                                   //8
+    "O procedimento ou função ja existe",              //9
+    "Procedimento/função nao possui nome",             //10
+    ": esperado",                                      //11
+    "Espera-se 'inicio'",                              //12
+    "Espera-se 'entao'",                               //13
+    "Espera-se 'faca'",                                //14
+    "Espera-se fechar parenteses",                     //15
+    "Expressão inválida",                              //16
+    "Variavel invalida ou inexistente",                //17
+    "Variavel não declarada",                          //18
+    "Espera-se abertura de parenteses",                //19
+    "Variavel ou função ou procedimento não declarada" //20
+};
 void error(tokens **token, int num_erro)
 {
    tokens *aux = *token;
@@ -62,7 +63,6 @@ void error(tokens **token, int num_erro)
    printf("linha %d: %s error\n", aux->_linha, aux->lexema);
    exit(-1);
 }
-
 
 void analisador_sintatico(tokens *lista)
 {
@@ -77,17 +77,18 @@ void analisador_sintatico(tokens *lista)
          if (cp(&token, "sponto_virgula"))
          {
             analisa_bloco(&token);
-            if (token!=NULL)
+            if (token != NULL)
             {
                // FIM
-               if (cp(&token, "sponto") && token->prox ==NULL){
+               if (cp(&token, "sponto") && token->prox == NULL)
+               {
                   printf("sucesso\n");
                }
-               else{
+               else
+               {
                   printf("O programa deve acabar com o ponto");
                   exit(-1);
                }
-               
             }
             else
             {
@@ -151,25 +152,25 @@ void analisa_variaveis(tokens **token)
    {
       if (cp(token, "sidentificador"))
       {
-          if (busca_duplicatas(tabela, *token))
-          {
-            insere_tabela(&tabela, *token,0,NULL);
+         if (busca_duplicatas(tabela, *token))
+         {
+            insere_tabela(&tabela, *token, 0, NULL);
             lx(token);
-            
+
             if (cp(token, "svirgula") || cp(token, "sdoispontos"))
             {
                if (cp(token, "svirgula"))
                {
                   lx(token);
                   if (cp(token, "sdoispontos"))
-                     error(token,7);
+                     error(token, 7);
                }
             }
             else
-               error(token,6);
-            }
-            else
-               error(token,5);
+               error(token, 6);
+         }
+         else
+            error(token, 5);
       }
       else
          error(token, 4);
@@ -182,7 +183,7 @@ void analisa_tipo(tokens **token)
 {
    if (!cp(token, "sinteiro") && !cp(token, "sbooleano"))
    {
-      error(token,8);
+      error(token, 8);
    }
    else
    {
@@ -218,7 +219,7 @@ void analisa_comandos(tokens **token)
       lx(token);
    }
    else
-      error(token,12);
+      error(token, 12);
 }
 
 void analisa_comando_simples(tokens **token)
@@ -252,29 +253,29 @@ void analisa_comando_simples(tokens **token)
 void analisa_atrib_chprocedimento(tokens **token)
 {
 
-   
-   if( !busca_incidente(*token, tabela)){
-   salva_var(*token);
-   lx(token);
-   if (cp(token, "satribuicao"))
+   if (!busca_incidente(*token, tabela))
    {
-      // analisa atribuição //// analisa_expressao(token);
-      Stack *saida;
-      int retorno;
+      salva_var(*token);
       lx(token);
-      salva_expressao(*token);
-      analisa_expressao(token);
-      _fim_expressao(*token);
-      saida = In2Pos();
-      retorno = valida_atribuicao(saida);
+      if (cp(token, "satribuicao"))
+      {
+         // analisa atribuição //// analisa_expressao(token);
+         Stack *saida;
+         int retorno;
+         lx(token);
+         salva_expressao(*token);
+         analisa_expressao(token);
+         _fim_expressao(*token);
+         saida = In2Pos();
+         retorno = valida_atribuicao(saida);
+      }
+      else
+      {
+         // Chamada_procedimento
+      }
    }
    else
    {
-      // Chamada_procedimento
-
-   }
-   }
-   else{
       error(token, 20);
    }
 }
@@ -282,29 +283,30 @@ void analisa_atrib_chprocedimento(tokens **token)
 void analisa_escreva(tokens **token)
 {
    lx(token);
+
    if (cp(token, "sabre_parenteses"))
    {
       lx(token);
       if (cp(token, "sidentificador"))
       {
-         if( !busca_incidente(*token, tabela))
-         {
-         lx(token);
-         if (cp(token, "sfecha_parenteses"))
+         if (!busca_incidente(*token, tabela))
          {
             lx(token);
+            if (cp(token, "sfecha_parenteses"))
+            {
+               lx(token);
+            }
+            else
+               error(token, 15);
          }
          else
-            error(token,15);
-         }
-         else
-          error(token,18);
+            error(token, 18);
       }
       else
-         error(token,17);
+         error(token, 17);
    }
    else
-      error(token,19);
+      error(token, 19);
 }
 
 void analisa_leia(tokens **token)
@@ -315,20 +317,26 @@ void analisa_leia(tokens **token)
       lx(token);
       if (cp(token, "sidentificador"))
       {
-          if( !busca_incidente(*token, tabela)){
-         lx(token);
-         if (cp(token, "sfecha_parenteses"))
-            lx(token);
-         else
-            error(token, 15);
+         if (!busca_incidente(*token, tabela))
+         {
+            if (!strcmp((pesquisa_tabela(tabela, *token))->conteudo.tipo, "sinteiro")){
+               lx(token);
+            if (cp(token, "sfecha_parenteses"))
+               lx(token);
+            else
+               error(token, 15);
+            }
+            else
+               error(token, 8);
          }
-         else error(token, 18);
+         else
+            error(token, 18);
       }
       else
-        error(token,17);
+         error(token, 17);
    }
    else
-      error(token,19);
+      error(token, 19);
 }
 
 void analisa_enquanto(tokens **token)
@@ -338,7 +346,11 @@ void analisa_enquanto(tokens **token)
    // Gera(rotulo,NULL,´ ´,´ ´) {início do while}
    // rotulo:= rotulo+1
    lx(token);
+   Stack *saida;
+   salva_expressao(*token);
    analisa_expressao(token);
+   _fim_expressao(*token);
+   saida = In2Pos();
    if (cp(token, "sfaca"))
    {
       // auxrot2:= rotulo
@@ -350,13 +362,17 @@ void analisa_enquanto(tokens **token)
       // Gera(auxrot2,NULL,´ ´,´ ´) {fim do while}
    }
    else
-      error(token,14);
+      error(token, 14);
 }
 
 void analisa_se(tokens **token)
 {
    lx(token);
+   Stack *saida;
+   salva_expressao(*token);
    analisa_expressao(token);
+   _fim_expressao(*token);
+   saida = In2Pos();
    if (cp(token, "sentao"))
    {
       lx(token);
@@ -368,7 +384,7 @@ void analisa_se(tokens **token)
       }
    }
    else
-      error(token,13);
+      error(token, 13);
 }
 void analisa_subrotinas(tokens **token)
 {
@@ -392,7 +408,7 @@ void analisa_subrotinas(tokens **token)
          lx(token);
       }
       else
-         error(token,2);
+         error(token, 2);
    }
    if (flag == 1)
    {
@@ -406,22 +422,25 @@ void analisa_declaracao_procedimento(tokens **token)
    //nível := “L” (marca ou novo galho)
    if (cp(token, "sidentificador")) //nome do procedimento
    {
-      if(busca_incidente(*token, tabela)){
-         insere_tabela(&tabela,*token,1,NULL);
+      if (busca_incidente(*token, tabela))
+      {
+         insere_tabela(&tabela, *token, 1, NULL);
          lx(token);
          if (cp(token, "sponto_virgula"))
          {
             analisa_bloco(token);
          }
          else
-            error(token,2);
+            error(token, 2);
       }
-      else{ 
-         error(token,9);
+      else
+      {
+         error(token, 9);
       }
    }
-   else{
-      error(token,10);
+   else
+   {
+      error(token, 10);
    }
    desempilha(&tabela);
 }
@@ -432,8 +451,9 @@ void analisa_declaracao_funcao(tokens **token)
    //nível := “L” (marca ou novo galho)
    if (cp(token, "sidentificador"))
    {
-       if(busca_incidente(*token, tabela)){
-         insere_tabela(&tabela,*token,1,NULL);
+      if (busca_incidente(*token, tabela))
+      {
+         insere_tabela(&tabela, *token, 1, NULL);
          lx(token);
          if (cp(token, "sdoispontos"))
          {
@@ -448,18 +468,19 @@ void analisa_declaracao_funcao(tokens **token)
                }
             }
             else
-               error(token,8);
+               error(token, 8);
          }
          else
             error(token, 11);
          // }else error(token);
       }
-      else{
-         error(token,9);
+      else
+      {
+         error(token, 9);
       }
    }
    else
-      error(token,10);
+      error(token, 10);
    desempilha(&tabela);
 }
 
@@ -471,7 +492,6 @@ void analisa_expressao(tokens **token)
       lx(token);
       analisa_expressao_simples(token);
    }
-   
 }
 
 void analisa_expressao_simples(tokens **token)
@@ -480,15 +500,13 @@ void analisa_expressao_simples(tokens **token)
    {
       lx(token);
    }
-      analisa_termo(token);
-   
-      while (cp(token, "smais") || cp(token, "smenos") || cp(token, "sou"))
-      {
-         lx(token);
-         analisa_termo(token);
-      }
-   
+   analisa_termo(token);
 
+   while (cp(token, "smais") || cp(token, "smenos") || cp(token, "sou"))
+   {
+      lx(token);
+      analisa_termo(token);
+   }
 }
 
 void analisa_termo(tokens **token)
@@ -509,19 +527,22 @@ void analisa_fator(tokens **token)
       // Então Se (TabSimb[ind].tipo = “função inteiro”) ou
       // (TabSimb[ind].tipo = “função booleano”)
       // Então
-      registro * aux_cel;
-      if ((aux_cel = pesquisa_tabela(tabela, *token)) != NULL){
-         if(!strcmp(aux_cel->conteudo.tipo, "func_sinterio") || !strcmp(aux_cel->conteudo.tipo, "func_sbooleano")){
+      registro *aux_cel;
+      if ((aux_cel = pesquisa_tabela(tabela, *token)) != NULL)
+      {
+         if (!strcmp(aux_cel->conteudo.tipo, "func_sinterio") || !strcmp(aux_cel->conteudo.tipo, "func_sbooleano"))
+         {
             lx(token); // Analisa chamada de função
          }
-         else{
-            lx(token); 
+         else
+         {
+            lx(token);
          }
       }
-      else{
-         error(token,20);
+      else
+      {
+         error(token, 20);
       }
-
    }
    else if (cp(token, "snumero"))
    {
@@ -548,7 +569,7 @@ void analisa_fator(tokens **token)
       lx(token);
    }
    else
-      error(token,16);
+      error(token, 16);
 }
 
 void analisa_chamada_procedimento(tokens **token)
@@ -557,7 +578,7 @@ void analisa_chamada_procedimento(tokens **token)
 
 int cp(tokens **token, char *simbolo)
 {
-   tokens *aux =*token;
+   tokens *aux = *token;
    if (!strcmp(aux->simbolo, simbolo))
       return 1;
    else
@@ -566,6 +587,6 @@ int cp(tokens **token, char *simbolo)
 
 void lx(tokens **token)
 {
-   
+
    *token = (*token)->prox;
 }

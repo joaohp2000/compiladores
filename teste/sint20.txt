@@ -6,7 +6,7 @@ var a,b,s, k: inteiro;
      z: booleano;                    
   procedimento ler;          
   inicio
-     leia (c);
+     leia (z);
      leia (a);
      a:=soma;                
      escreva (s);

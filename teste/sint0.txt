@@ -16,10 +16,10 @@ var a, x: inteiro;
 inicio
   se x>1  entao
       x:= 0;
-  leia(z);
+  leia(a);
   enquanto (a != 89) e (a<= 1000)  {condicao de parada}
   faca inicio
-           a:= x+z
+           a:= x+a
        fim;
   escreva(a)
 fim;
@@ -34,7 +34,6 @@ fim;
 inicio
     analisa1;
     analisa2;
-    analisa3;
     se b > (c+ a*a)
     entao escreva(b)
     senao escreva(c)
