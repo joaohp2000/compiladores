@@ -6,7 +6,7 @@
 #include "../analisador_lexico/analisador_lexico.h"
 
 void error(tokens **token, int num_erro);
-void analisador_sintatico(tokens *lista);
+void analisador_sintatico(tokens *lista, char *nome_arquivo);
 
 int cp(tokens **token, char * simbolo);
 void analisa_bloco(tokens **lista);

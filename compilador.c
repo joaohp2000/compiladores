@@ -28,7 +28,9 @@ int main(int argc, char **argv){
       caracter = fgetc(arquivo);
    }
    //imprimir_lista(token);
-   analisador_sintatico(token);
+   sprintf(caminho, "sint%s.obj",argv[1]);
+
+   analisador_sintatico(token, caminho);
    imprimir_tabela(tabela);
    fclose(arquivo);
 }

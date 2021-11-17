@@ -6,6 +6,7 @@
 #include <strings.h>
 #include <string.h>
 #include <sys/types.h>
+#include <stdarg.h>
 // CONVERTER APONTAMENTO PARA ALOCAÇÃO
 // C program to convert infix expression to postfix
 //Stack *pilha= NULL;
@@ -13,6 +14,7 @@ static tokens *var;
 static tokens *expressao;
 static tokens *fim_expressao;
 static char *element[] = {"sbooleano", "sinteiro", "W", "+u", "-u", "sunario"};
+FILE *file_obj;
 void salva_var(tokens *token)
 {
   var = token;
@@ -34,6 +36,7 @@ int valida_expressao(Stack *lista);
 int tabela_tipos(Stack *fat1, Stack *fat2, Stack *op);
 void unario(tokens *token, Stack **pilha, Stack **lista);
 Stack *copia_lista(Stack *lista, int count);
+registro *pesquisa_tabela_lista(registro *tabela, Stack *element);
 
 void unario(tokens *token, Stack **pilha, Stack **lista)
 {
@@ -478,4 +481,148 @@ int valida_atribuicao(Stack *lista)
     }
   }
   return rt;
+}
+void inicializa_arquivo_objeto(char *nome_arquivo)
+{
+  printf("Abrindo arquivo %s\n", nome_arquivo);
+  if ((file_obj = fopen(nome_arquivo, "w+")) == NULL)
+  {
+    printf("Erro ao abrir o arquivo!\n");
+    exit(1);
+  }
+}
+void close_arquivo()
+{
+  fclose(file_obj);
+}
+void gerador_codigo(char *_rotulo, char *comando, char *m, char *n)
+{
+  fprintf(file_obj, "%s	%s %s %s\n", _rotulo, comando, m, n);
+}
+int indice(Stack *lista, int var_total, registro *_tabela)
+{
+  registro *p;
+  p = _tabela;
+  while (strcmp(lista->lexema, p->conteudo.lexema))
+  {
+    if (!strcmp(p->conteudo.tipo, "sinteiro") || !strcmp(p->conteudo.tipo, "sbooleano"))
+    {
+      var_total--;
+    }
+    p = p->prox;
+  }
+  var_total--;
+  return var_total;
+}
+
+registro *pesquisa_tabela_lista(registro *tabela, Stack *element)
+{
+  registro *p;
+  p = tabela;
+  while (!pilha_vazia(p) && strcmp(element->lexema, p->conteudo.lexema))
+  {
+    p = p->prox;
+  }
+  if (pilha_vazia(p))
+  {
+    return NULL;
+  }
+  else
+  {
+    return p;
+  }
+}
+void gerar_atribuicao(int var_total)
+{
+  char snum[10];
+  registro *aux_table = pesquisa_tabela(tabela, var);
+  if (!strcmp(aux_table->conteudo.tipo, "sinteiro") || !strcmp(aux_table->conteudo.tipo, "sbooleano"))
+  {
+    Stack *aux;
+    aux = token_to_stack(var);
+
+    sprintf(snum, "%d", indice(aux, var_total, tabela));
+    gerador_codigo("", "STR", snum, "");
+    free(aux);
+  }
+  else{
+    gerador_codigo("", "STR", "0", "");
+  }
+}
+void gerar_expressao(Stack *pos_fix, int var_total)
+{
+  char snum[10];
+  while (pos_fix != NULL)
+  {
+    if (!strcmp(pos_fix->simbolo, "sidentificador"))
+    {
+      if (!strcmp(pos_fix->tipo, "sinteiro") || !strcmp(pos_fix->tipo, "sbooleano"))
+      {
+        sprintf(snum, "%d", indice(pos_fix, var_total, tabela));
+        gerador_codigo("", "LDV", snum, "");
+      }
+      else
+      {
+        registro *aux = pesquisa_tabela_lista(tabela, pos_fix);
+        sprintf(snum, "%d", aux->conteudo.memoria);
+        gerador_codigo("", "CALL", snum, "");
+        gerador_codigo("", "LDV", "0", "");
+      }
+    }
+    else
+    {
+      if (!strcmp(pos_fix->simbolo, "snumero"))
+      {
+        gerador_codigo("", "LDC", pos_fix->lexema, "");
+      }
+      else
+      {
+        if (!strcmp(pos_fix->simbolo, "smais"))
+          gerador_codigo("", "ADD", "", "");
+        else if (!strcmp(pos_fix->simbolo, "smenos"))
+          gerador_codigo("", "SUB", "", "");
+        else if (!strcmp(pos_fix->simbolo, "smult"))
+          gerador_codigo("", "MULT", "", "");
+        else if (!strcmp(pos_fix->simbolo, "sdiv"))
+          gerador_codigo("", "DIV", "", "");
+        else if (!strcmp(pos_fix->simbolo, "se"))
+          gerador_codigo("", "AND", "", "");
+        else if (!strcmp(pos_fix->simbolo, "snao"))
+          gerador_codigo("", "NOT", "", "");
+        else if (!strcmp(pos_fix->simbolo, "sou"))
+          gerador_codigo("", "OR", "", "");
+        else if (!strcmp(pos_fix->simbolo, "smenor"))
+          gerador_codigo("", "CME", "", "");
+        else if (!strcmp(pos_fix->simbolo, "smaior"))
+          gerador_codigo("", "CMA", "", "");
+        else if (!strcmp(pos_fix->simbolo, "sig"))
+          gerador_codigo("", "CEQ", "", "");
+        else if (!strcmp(pos_fix->simbolo, "sdif"))
+          gerador_codigo("", "CDIF", "", "");
+        else if (!strcmp(pos_fix->simbolo, "smenorig"))
+          gerador_codigo("", "CMEQ", "", "");
+        else if (!strcmp(pos_fix->simbolo, "smaiorig"))
+          gerador_codigo("", "CMAQ", "", "");
+      }
+    }
+    pos_fix = pos_fix->prox;
+  }
+}
+
+void gerar_procedimento()
+{
+  char snum[10];
+  registro *aux = pesquisa_tabela(tabela, var);
+  sprintf(snum, "%d", aux->conteudo.memoria);
+  gerador_codigo("", "CALL", snum, "");
+}
+
+void gerar_leia_escreve(int var_total, tokens *token, char *comando)
+{
+  char snum[10];
+  Stack *aux;
+  aux = token_to_stack(token);
+  sprintf(snum, "%d", indice(aux, var_total, tabela));
+  gerador_codigo("", comando, snum, "");
+  free(aux);
 }

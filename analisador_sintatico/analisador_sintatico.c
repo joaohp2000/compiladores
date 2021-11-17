@@ -6,6 +6,8 @@
 #include <ctype.h>
 #include "analisador_sintatico.h"
 #include "../analisador_semantico/analisador_semantico.h"
+#include <unistd.h>
+#include <sys/wait.h>
 /*Def rotulo inteiro
 início
  rotulo:= 1
@@ -33,13 +35,16 @@ senão ERRO
  senão ERRO
 fim.*/
 tokens **token = NULL;
+int rotulo, var_mem = 0, num_var = 0;
+char svar_mem[5], snum_var[5];
+char *obj_file;
 char *erros[] = {
     "Deve iniciar com 'programa'",                     //0
     "'Programa' deve ser sucedido por um nome",        //1
     "Falta ponto e virgula",                           //2
     "Falta o ponto",                                   //3
     "Variavel Sem nome",                               //4
-    "Variavel duplicada",                              // 5
+    "Variavel duplicada",                              //5
     "O simbolo apos a variavel é invalido",            //6
     " ':' invalido",                                   //7
     "Tipo invalido",                                   //8
@@ -61,18 +66,27 @@ void error(tokens **token, int num_erro)
    tokens *aux = *token;
    printf("%s\n", erros[num_erro]);
    printf("linha %d: %s error\n", aux->_linha, aux->lexema);
+   close_arquivo();
+   remove(obj_file);
    exit(-1);
 }
-
-void analisador_sintatico(tokens *lista)
+const char *int_to_string(int inteiro);
+void analisador_sintatico(tokens *lista, char *nome_arquivo)
 {
    tokens *token = lista;
+   rotulo = 1;
+   obj_file = nome_arquivo;
+   inicializa_arquivo_objeto(nome_arquivo);
    if (cp(&token, "sprograma"))
    {
+      gerador_codigo("", "START", "", "");
       lx(&token);
       if (cp(&token, "sidentificador"))
       {
          insere_tabela(&tabela, token, 1, NULL);
+         gerador_codigo("", "ALLOC", "0", "1");
+         num_var++;
+         //rotulo++;
          lx(&token);
          if (cp(&token, "sponto_virgula"))
          {
@@ -82,6 +96,14 @@ void analisador_sintatico(tokens *lista)
                // FIM
                if (cp(&token, "sponto") && token->prox == NULL)
                {
+
+                  var_mem = num_var;
+                  num_var = 0;
+                  sprintf(svar_mem, "%d", var_mem);
+                  sprintf(snum_var, "%d", num_var);
+                  gerador_codigo("", "DALLOC", snum_var, svar_mem);
+                  gerador_codigo("", "HLT", "", "");
+
                   printf("sucesso\n");
                }
                else
@@ -125,6 +147,7 @@ void analisa_et_variaveis(tokens **token)
    if (cp(token, "svar"))
    {
       lx(token);
+
       if (cp(token, "sidentificador"))
       {
          while (cp(token, "sidentificador"))
@@ -152,6 +175,7 @@ void analisa_variaveis(tokens **token)
    {
       if (cp(token, "sidentificador"))
       {
+         var_mem++;
          if (busca_duplicatas(tabela, *token))
          {
             insere_tabela(&tabela, *token, 0, NULL);
@@ -175,6 +199,12 @@ void analisa_variaveis(tokens **token)
       else
          error(token, 4);
    }
+   // gerador_codigo("","ALLOC", var_mem, num_var);
+   sprintf(svar_mem, "%d", var_mem);
+   sprintf(snum_var, "%d", num_var);
+   gerador_codigo("", "ALLOC", snum_var, svar_mem);
+   num_var = num_var + var_mem;
+   var_mem = 0;
    lx(token);
    analisa_tipo(token);
 }
@@ -201,6 +231,7 @@ void analisa_comandos(tokens **token)
 {
    if (cp(token, "sinicio"))
    {
+
       lx(token);
       analisa_comando_simples(token);
       while (!cp(token, "sfim"))
@@ -216,6 +247,7 @@ void analisa_comandos(tokens **token)
          else
             error(token, 2);
       }
+
       lx(token);
    }
    else
@@ -267,11 +299,14 @@ void analisa_atrib_chprocedimento(tokens **token)
          analisa_expressao(token);
          _fim_expressao(*token);
          saida = In2Pos();
+         gerar_expressao(saida, num_var);
          retorno = valida_atribuicao(saida);
+         gerar_atribuicao(num_var);
       }
       else
       {
          // Chamada_procedimento
+         gerar_procedimento();
       }
    }
    else
@@ -291,6 +326,8 @@ void analisa_escreva(tokens **token)
       {
          if (!busca_incidente(*token, tabela))
          {
+            gerar_leia_escreve(num_var, *token, "LDV");
+            gerador_codigo("", "PRN", "", "");
             lx(token);
             if (cp(token, "sfecha_parenteses"))
             {
@@ -312,6 +349,7 @@ void analisa_escreva(tokens **token)
 void analisa_leia(tokens **token)
 {
    lx(token);
+   gerador_codigo("", "RD", "", "");
    if (cp(token, "sabre_parenteses"))
    {
       lx(token);
@@ -319,12 +357,14 @@ void analisa_leia(tokens **token)
       {
          if (!busca_incidente(*token, tabela))
          {
-            if (!strcmp((pesquisa_tabela(tabela, *token))->conteudo.tipo, "sinteiro")){
+            if (!strcmp((pesquisa_tabela(tabela, *token))->conteudo.tipo, "sinteiro"))
+            {
+               gerar_leia_escreve(num_var, *token, "STR");
                lx(token);
-            if (cp(token, "sfecha_parenteses"))
-               lx(token);
-            else
-               error(token, 15);
+               if (cp(token, "sfecha_parenteses"))
+                  lx(token);
+               else
+                  error(token, 15);
             }
             else
                error(token, 8);
@@ -341,23 +381,35 @@ void analisa_leia(tokens **token)
 
 void analisa_enquanto(tokens **token)
 {
+   int auxrot1, auxrot2;
    // Def auxrot1,auxrot2 inteiro
-   // auxrot1:= rotulo
+   auxrot1 = rotulo;
+   sprintf(snum_var, "%d", rotulo);
+   gerador_codigo(snum_var, "NULL", "", "");
    // Gera(rotulo,NULL,´ ´,´ ´) {início do while}
-   // rotulo:= rotulo+1
+   rotulo = rotulo + 1;
    lx(token);
    Stack *saida;
    salva_expressao(*token);
    analisa_expressao(token);
    _fim_expressao(*token);
    saida = In2Pos();
+   gerar_expressao(saida, num_var);
    if (cp(token, "sfaca"))
    {
-      // auxrot2:= rotulo
+      auxrot2 = rotulo;
+      sprintf(snum_var, "%d", rotulo);
+      gerador_codigo("", "JMPF", snum_var, "");
       // Gera(´ ´,JMPF,rotulo,´ ´) {salta se falso}
       // rotulo:= rotulo+1
+      rotulo = rotulo + 1;
+
       lx(token);
       analisa_comando_simples(token);
+      sprintf(snum_var, "%d", auxrot1);
+      gerador_codigo("", "JMP", snum_var, "");
+      sprintf(snum_var, "%d", auxrot2);
+      gerador_codigo(snum_var, "NULL", "", "");
       // Gera(´ ´,JMP,auxrot1,´ ´) {retorna início loop}
       // Gera(auxrot2,NULL,´ ´,´ ´) {fim do while}
    }
@@ -367,31 +419,59 @@ void analisa_enquanto(tokens **token)
 
 void analisa_se(tokens **token)
 {
+   int auxrot1, auxrot2;
+   // Def auxrot1,auxrot2 inteiro
+
    lx(token);
    Stack *saida;
    salva_expressao(*token);
    analisa_expressao(token);
    _fim_expressao(*token);
    saida = In2Pos();
+   gerar_expressao(saida, num_var);
+
+   auxrot1 = rotulo;
+   auxrot2 = rotulo;
+   sprintf(snum_var, "%d", rotulo);
+   gerador_codigo("", "JMPF", snum_var, "");
+   rotulo = rotulo + 1;
+
    if (cp(token, "sentao"))
    {
       lx(token);
+
       analisa_comando_simples(token);
+
       if (cp(token, "ssenao"))
       {
+         auxrot2 = rotulo;
+         sprintf(snum_var, "%d", rotulo);
+         gerador_codigo("", "JMP", snum_var, "");
+         rotulo = rotulo + 1;
+
+         sprintf(snum_var, "%d", auxrot1);
+         gerador_codigo(snum_var, "NULL", "", "");
+         auxrot1 = rotulo;
          lx(token);
          analisa_comando_simples(token);
       }
+      sprintf(snum_var, "%d", auxrot2);
+      gerador_codigo(snum_var, "NULL", "", "");
    }
    else
       error(token, 13);
 }
 void analisa_subrotinas(tokens **token)
 {
-   int flag = 0;
+   int flag = 0, auxrot;
    if (cp(token, "sprocedimento") || cp(token, "sfuncao"))
    {
       // faz nada por enquanto
+      auxrot = rotulo;
+      sprintf(snum_var, "%d", rotulo);
+      gerador_codigo("", "JMP", snum_var, ""); //{Salta sub - rotinas}
+      rotulo = rotulo + 1;
+      flag = 1;
    }
    while (cp(token, "sprocedimento") || cp(token, "sfuncao"))
    {
@@ -413,18 +493,25 @@ void analisa_subrotinas(tokens **token)
    if (flag == 1)
    {
       //faz algo
+      sprintf(snum_var, "%d", auxrot);
+      gerador_codigo(snum_var, "NULL", "", "");
    }
 }
 
 void analisa_declaracao_procedimento(tokens **token)
 {
    lx(token);
+
    //nível := “L” (marca ou novo galho)
    if (cp(token, "sidentificador")) //nome do procedimento
    {
       if (busca_incidente(*token, tabela))
       {
-         insere_tabela(&tabela, *token, 1, NULL);
+         insere_tabela(&tabela, *token, 1, &rotulo);
+         sprintf(snum_var, "%d", rotulo);
+         gerador_codigo(snum_var, "NULL", "", "");
+
+         rotulo++;
          lx(token);
          if (cp(token, "sponto_virgula"))
          {
@@ -442,18 +529,30 @@ void analisa_declaracao_procedimento(tokens **token)
    {
       error(token, 10);
    }
-   desempilha(&tabela);
+   var_mem = desempilha(&tabela);
+   num_var = num_var - var_mem;
+   if (var_mem != 0)
+   {
+      sprintf(svar_mem, "%d", var_mem);
+      sprintf(snum_var, "%d", num_var);
+      gerador_codigo("", "DALLOC", snum_var, svar_mem);
+   }
+   gerador_codigo("", "RETURN", "", "");
 }
 
 void analisa_declaracao_funcao(tokens **token)
 {
    lx(token);
+
    //nível := “L” (marca ou novo galho)
    if (cp(token, "sidentificador"))
    {
       if (busca_incidente(*token, tabela))
       {
-         insere_tabela(&tabela, *token, 1, NULL);
+         insere_tabela(&tabela, *token, 1, &rotulo);
+         sprintf(snum_var, "%d", rotulo);
+         gerador_codigo(snum_var, "NULL", "", "");
+         rotulo++;
          lx(token);
          if (cp(token, "sdoispontos"))
          {
@@ -481,7 +580,15 @@ void analisa_declaracao_funcao(tokens **token)
    }
    else
       error(token, 10);
-   desempilha(&tabela);
+   var_mem = desempilha(&tabela);
+   num_var = num_var - var_mem;
+   if (var_mem != 0)
+   {
+      sprintf(svar_mem, "%d", var_mem);
+      sprintf(snum_var, "%d", num_var);
+      gerador_codigo("", "DALLOC", snum_var, svar_mem);
+   }
+   gerador_codigo("", "RETURN", "", "");
 }
 
 void analisa_expressao(tokens **token)

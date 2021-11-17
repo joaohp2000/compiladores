@@ -14,14 +14,15 @@ registro *novo_registro()
     novo = (registro *)malloc(sizeof(registro));
     return novo;
 }
-void libera_mem(registro * element){
+void libera_mem(registro *element)
+{
     free(element->conteudo.lexema);
     free(element);
 }
 void novo_elemento(elemento *x, char *lexema, char *tipo, u_int8_t escopo)
 {
     int size;
-    size  = strlen(lexema);
+    size = strlen(lexema);
     x->lexema = malloc(size);
     sprintf(x->lexema, "%s", lexema);
     sprintf(x->tipo, "%s", tipo);
@@ -34,42 +35,57 @@ int busca_incidente(tokens *token, registro *tabela)
     p = tabela;
     while (!pilha_vazia(p) && strcmp(token->lexema, p->conteudo.lexema))
         p = p->prox;
-    if(pilha_vazia(p)) {
+    if (pilha_vazia(p))
+    {
         return 1;
     }
-    else {
+    else
+    {
         return 0;
     }
 }
 
-int busca_duplicatas(registro * _registro, tokens *token)
+int busca_duplicatas(registro *_registro, tokens *token)
 {
     registro *p;
     p = tabela;
-    while (!pilha_vazia(p) && strcmp(token->lexema, p->conteudo.lexema) && p->conteudo.escopo!=1)
+    while (!pilha_vazia(p) && strcmp(token->lexema, p->conteudo.lexema) && p->conteudo.escopo != 1)
         p = p->prox;
-    
-    if(p->conteudo.escopo==1) {
-        while(!pilha_vazia(p)){
-            if(p->conteudo.escopo==1 && !strcmp(token->lexema, p->conteudo.lexema)){
+
+    if (p->conteudo.escopo == 1)
+    {
+        while (!pilha_vazia(p))
+        {
+            if (p->conteudo.escopo == 1 && !strcmp(token->lexema, p->conteudo.lexema))
+            {
                 return 0;
             }
-            p=p->prox;
-        }  
+            p = p->prox;
+        }
         return 1;
     }
-    else {
-      //printf("%s : %s ja existe\n\n", p->conteudo.lexema, token->lexema);
+    else
+    {
+        //printf("%s : %s ja existe\n\n", p->conteudo.lexema, token->lexema);
         return 0;
     }
-
+}
+registro *busca_escopo(registro *_tabela)
+{
+    while (_tabela->conteudo.escopo != 1)
+    {
+        _tabela = _tabela->prox;
+    }
+    return _tabela;
 }
 
-elemento pop(registro **tabela){
+elemento pop(registro **tabela)
+{
     elemento _registro;
     bzero(&_registro, sizeof(elemento));
     registro *aux = *tabela;
-    if(!pilha_vazia(aux)) {
+    if (!pilha_vazia(aux))
+    {
         memcpy(&_registro, &(aux->conteudo), sizeof(elemento));
         *tabela = aux->prox;
         free(aux);
@@ -77,8 +93,10 @@ elemento pop(registro **tabela){
     return _registro;
 }
 
-int pilha_vazia(registro * tabela){
-    if(tabela!=NULL) return 0;
+int pilha_vazia(registro *tabela)
+{
+    if (tabela != NULL)
+        return 0;
     return 1;
 }
 
@@ -86,19 +104,20 @@ registro *cria_tabela(tokens *lista)
 {
     tokens *p = lista;
     elemento campos;
-    registro  *tabela;
+    registro *tabela;
     char *tipo;
 
     tabela = NULL;
 
     if (!strcmp(p->lexema, "var"))
     {
-        while (strcmp(p->lexema, "inteiro") && strcmp(p->lexema, "booleano") && p->prox!=NULL)
+        while (strcmp(p->lexema, "inteiro") && strcmp(p->lexema, "booleano") && p->prox != NULL)
         {
             p = p->prox;
         }
-         if(p->prox==NULL) return (registro *)tipo_null;
-         return  (registro *)p->lexema;
+        if (p->prox == NULL)
+            return (registro *)tipo_null;
+        return (registro *)p->lexema;
     }
     else
     {
@@ -158,34 +177,42 @@ void push(elemento x, registro **pri)
     *pri = novo;
 }
 
-void insere_tabela(registro **pri, tokens *token, int nivel,void *rotulo)
+void insere_tabela(registro **pri, tokens *token, int nivel, int *rotulo)
 {
     registro *p, *novo;
     p = *pri;
+
     novo = novo_registro();
     novo->conteudo.lexema = token->lexema;
     novo->conteudo.simbolo = token->simbolo;
-    novo->conteudo.escopo =nivel;
-    sprintf(novo->conteudo.tipo, "null"); 
-    novo->prox =p;
+    novo->conteudo.escopo = nivel;
+    sprintf(novo->conteudo.tipo, "null");
+    if (rotulo != NULL)
+    {
+        novo->conteudo.memoria = *rotulo;
+    }
+    novo->prox = p;
     *pri = novo;
 }
 
-void insere_tipo(registro *pri, tokens *token,int func_var){
-    registro *aux =pri;
-    if(func_var == 0){
-    while(aux->conteudo.escopo != 1 && !strcmp(aux->conteudo.tipo,tipo_null))
+void insere_tipo(registro *pri, tokens *token, int func_var)
+{
+    registro *aux = pri;
+    if (func_var == 0)
     {
-        if(!strcmp(aux->conteudo.simbolo, "sidentificador")){
-            sprintf(aux->conteudo.tipo, "%s",token->simbolo);
+        while (aux->conteudo.escopo != 1 && !strcmp(aux->conteudo.tipo, tipo_null))
+        {
+            if (!strcmp(aux->conteudo.simbolo, "sidentificador"))
+            {
+                sprintf(aux->conteudo.tipo, "%s", token->simbolo);
+            }
+            aux = aux->prox;
         }
-        aux=aux->prox;
-    }  
     }
-    else{
-        sprintf(aux->conteudo.tipo, "func_%s",token->simbolo);
- 
-    } 
+    else
+    {
+        sprintf(aux->conteudo.tipo, "func_%s", token->simbolo);
+    }
 }
 
 void imprimir_tabela(registro *lista)
@@ -195,37 +222,51 @@ void imprimir_tabela(registro *lista)
     p = lista;
     while (!pilha_vazia(p))
     {
-        printf(" | %s | %s | %d \n", p->conteudo.lexema, p->conteudo.tipo, p->conteudo.escopo);
+        printf(" | %s | %s | %d |%d\n", p->conteudo.lexema, p->conteudo.tipo, p->conteudo.escopo, p->conteudo.memoria);
         p = p->prox;
     }
     printf("\n\n");
 }
-registro * pesquisa_tabela(registro * tabela, tokens * token){
+registro *pesquisa_tabela(registro *tabela, tokens *token)
+{
     registro *p;
     p = tabela;
-    while(!pilha_vazia(p) && strcmp(token->lexema, p->conteudo.lexema)){
-      p = p->prox;  
+    while (!pilha_vazia(p) && strcmp(token->lexema, p->conteudo.lexema))
+    {
+        p = p->prox;
     }
-    if(pilha_vazia(p)) {
+    if (pilha_vazia(p))
+    {
         return NULL;
     }
-    else {
+    else
+    {
         return p;
     }
 }
-registro *tabela =NULL;
+registro *tabela = NULL;
 
-void desempilha(registro **lista){
-    
-    while((*lista)->conteudo.escopo != 1 && !pilha_vazia(*lista)){
+int desempilha(registro **lista)
+{
+    int count = 0;
+    while ((*lista)->conteudo.escopo != 1 && !pilha_vazia(*lista))
+    {
+        if (!strcmp((*lista)->conteudo.tipo, "sinteiro") || !strcmp((*lista)->conteudo.tipo, "sbooleano"))
+        {
+            count++;
+        }
         (*lista) = (*lista)->prox;
     }
-    
-    if(lista !=NULL){
+
+    if (lista != NULL)
+    {
         (*lista)->conteudo.escopo = 0;
     }
-    else{
+    else
+    {
         printf("Error");
         exit(-1);
     }
+    return count;
 }
+

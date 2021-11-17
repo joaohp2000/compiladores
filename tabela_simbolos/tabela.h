@@ -25,7 +25,7 @@ struct elemento
     char *lexema;
     u_int8_t escopo;
     char tipo[15];
-    void *memoria;
+    int memoria;
 };
 
 typedef struct elemento elemento;
@@ -41,7 +41,7 @@ extern registro *tabela;
 
 void insere_tipo(registro *pri, tokens *token, int func_var);
 
-void insere_tabela(registro **pri, tokens *token, int nivel,void *rotulo );
+void insere_tabela(registro **pri, tokens *token, int nivel,int *rotulo );
 
 registro * cria_tabela(tokens * lista);
 
@@ -67,5 +67,7 @@ registro *novo_registro();
 
 registro *pesquisa_tabela(registro * tabela, tokens * token);
 
-void desempilha(registro **lista);
+int desempilha(registro **lista);
+
+registro *busca_escopo(registro *_tabela);
 #endif

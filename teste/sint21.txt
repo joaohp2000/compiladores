@@ -1,8 +1,18 @@
-programa test;
-var x,y,z,a,b,s, k: inteiro;
-p:booleano;
-inicio      {corpo principal}
- p:=(-x + 7 * 5 div (30+y) <= (x*a+2))e(z>0);
-  escreva(p)
-fim.
-
+programa exemplo6;
+var x, y: inteiro;
+  procedimento p;
+  var z: inteiro;
+  inicio
+    z:= x; 
+    x:=x-1;
+    se z>1  
+    entao p
+    senao y:=1;
+    y:=y*z;
+  fim { p };
+inicio
+  leia(x);
+  p;
+  escreva (y);
+  escreva (x)
+fim.  
