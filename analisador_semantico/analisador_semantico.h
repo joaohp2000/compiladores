@@ -2,7 +2,7 @@
 #define _ANALISADOR_SEMANTICO
 
 #include "../tabela_simbolos/tabela.h"
-
+#include "../analisador_sintatico/analisador_sintatico.h"
 struct Stack
 {
     char *simbolo;
@@ -35,4 +35,5 @@ void gerar_procedimento();
 void gerar_atribuicao(int var_total);
 void close_arquivo();
 void gerar_leia_escreve(int var_total, tokens *token, char *comando);
+int valida_expressao(Stack *lista);
 #endif

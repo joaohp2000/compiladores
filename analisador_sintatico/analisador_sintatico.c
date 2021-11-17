@@ -395,6 +395,15 @@ void analisa_enquanto(tokens **token)
    _fim_expressao(*token);
    saida = In2Pos();
    gerar_expressao(saida, num_var);
+   if (valida_expressao(saida))
+   {
+      if (strcmp(saida->tipo, "sbooleano"))
+         error(token, 8);
+   }
+   else
+   {
+      error(token, 8);
+   }
    if (cp(token, "sfaca"))
    {
       auxrot2 = rotulo;
@@ -429,6 +438,15 @@ void analisa_se(tokens **token)
    _fim_expressao(*token);
    saida = In2Pos();
    gerar_expressao(saida, num_var);
+   if (valida_expressao(saida))
+   {
+      if (strcmp(saida->tipo, "sbooleano"))
+         error(token, 8);
+   }
+   else
+   {
+      error(token, 8);
+   }
 
    auxrot1 = rotulo;
    auxrot2 = rotulo;
