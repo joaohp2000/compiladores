@@ -689,7 +689,7 @@ void analisa_fator(tokens **token)
       else
          error(token, 15);
    }
-   else if (cp(token, "verdadeiro") || cp(token, "falso"))
+   else if (cp(token, "sverdadeiro") || cp(token, "sfalso"))
    {
       lx(token);
    }

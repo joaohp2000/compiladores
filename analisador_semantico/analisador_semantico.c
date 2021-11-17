@@ -74,7 +74,7 @@ Stack *In2Pos()
     }
     else
     {
-      if (cp(&token, "sidentificador") || cp(&token, "snumero"))
+      if (cp(&token, "sidentificador") || cp(&token, "snumero") || cp(&token, "sverdadeiro") || cp(&token, "sfalso"))
       {
         insere_lista(&lista, token_to_stack(token));
       }
@@ -214,7 +214,10 @@ void push_stack(Stack **pri, tokens *token)
     aux = pesquisa_tabela(tabela, token);
     novo->tipo = aux->conteudo.tipo;
   }
-
+  if (!strcmp(token->simbolo, "sverdadeiro") || !strcmp(token->simbolo, "sfalso"))
+  {
+    novo->tipo = element[0];
+  }
   p = *pri;
   novo = nova_celula();
   novo->lexema = token->lexema;
@@ -285,6 +288,10 @@ Stack *token_to_stack(tokens *token)
       novo->tipo = aux->conteudo.tipo;
     }
   }
+  if (!strcmp(token->simbolo, "sverdadeiro") || !strcmp(token->simbolo, "sfalso"))
+  {
+    novo->tipo = element[0];
+  }
   novo->lexema = token->lexema;
   novo->simbolo = token->simbolo;
   novo->prox = NULL;
@@ -311,7 +318,7 @@ int valida_expressao(Stack *lista)
 {
 
   int count = 0;
-  if (strcmp(lista->simbolo, "sidentificador") && strcmp(lista->simbolo, "snumero"))
+  if (strcmp(lista->simbolo, "sidentificador") && strcmp(lista->simbolo, "snumero") && strcmp(lista->simbolo, "sverdadeiro") && strcmp(lista->simbolo, "sfalso"))
   {
     if (!strcmp(lista->simbolo, "sunario") || !strcmp(lista->simbolo, "snao"))
       return 0;
@@ -545,7 +552,8 @@ void gerar_atribuicao(int var_total)
     gerador_codigo("", "STR", snum, "");
     free(aux);
   }
-  else{
+  else
+  {
     gerador_codigo("", "STR", "0", "");
   }
 }
@@ -571,9 +579,14 @@ void gerar_expressao(Stack *pos_fix, int var_total)
     }
     else
     {
-      if (!strcmp(pos_fix->simbolo, "snumero"))
+      if (!strcmp(pos_fix->simbolo, "snumero") || !strcmp(pos_fix->simbolo, "sfalso") || !strcmp(pos_fix->simbolo, "sverdadeiro"))
       {
-        gerador_codigo("", "LDC", pos_fix->lexema, "");
+        if (!strcmp(pos_fix->simbolo, "sfalso"))
+          gerador_codigo("", "LDC", "0", "");
+        else if (!strcmp(pos_fix->simbolo, "sverdadeiro"))
+          gerador_codigo("", "LDC", "1", "");
+        else
+          gerador_codigo("", "LDC", pos_fix->lexema, "");
       }
       else
       {
