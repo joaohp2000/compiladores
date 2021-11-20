@@ -616,6 +616,10 @@ void gerar_expressao(Stack *pos_fix, int var_total)
           gerador_codigo("", "CMEQ", "", "");
         else if (!strcmp(pos_fix->simbolo, "smaiorig"))
           gerador_codigo("", "CMAQ", "", "");
+        else{
+          if(!strcmp(pos_fix->lexema, "-u"))
+          gerador_codigo("", "INV", "", "");
+        }
       }
     }
     pos_fix = pos_fix->prox;
