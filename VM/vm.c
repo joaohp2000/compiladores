@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
+#include <stdio_ext.h>
 #include "memoria.h"
 #include "vm.h"
 
@@ -13,9 +14,42 @@ enum tipo_intrucoes
     COMPLETAS
 } tipos; //(1 NULL, ADD, JPM 1, ALLOC 0,1)
 
-//extern int *m,s=0;
+void imprimir_programa2(comando *programa, int pc);
+FILE *_arquivo;
+#define MAX 100
 
-int ler_programa(FILE *_arquivo, comando **programa, table_memory **_table_aux)
+void executar_vm(){
+    comando *_programa = NULL;
+    table_memory *_table_aux = NULL;
+    
+    int pc = ler_programa(&_programa, &(_table_aux));
+    //imprimir_programa2(_programa, pc);
+    executar_programa(_programa, _table_aux, pc);
+    //printf("\n%d %d\n", _table_aux[0].rotulo, pc);
+    printf("fim do programa\n");
+    fclose(_arquivo);
+    
+}
+//extern int *m,s=0;
+ 
+ void iniciar_file(char * caminho){
+     FILE *arquivo;
+    if ((arquivo = fopen(caminho, "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo!\n");
+        exit(1);
+    }
+    _arquivo = arquivo;
+}
+
+
+
+void imprimir_programa2(comando *programa, int pc){
+    for(int i=0;i<pc;i++){
+        printf("%s\n", programa[i].instrucao);
+    }
+}
+int ler_programa(comando **programa, table_memory **_table_aux)
 {
     char command[8], arg[3], arg2[3];
     char caracter;
@@ -104,6 +138,7 @@ void executar_programa(comando *programa, table_memory *table_aux, int num_intru
     m = (memoria *) malloc(sizeof(int));
     m[0] = 0;
     char c;
+    setbuf(stdout, NULL);
     if (!strcmp(programa[pc].instrucao, "START"))
     {
         pc++;
@@ -130,12 +165,18 @@ void executar_programa(comando *programa, table_memory *table_aux, int num_intru
             default:
                 break;
             }
+            __fpurge(stdout);
+            //printf("_memoria_\n");
             imprimir_memoria();
-            scanf("%c", &c);
+            __fpurge(stdout);
+            //scanf("%c", &c);
             pc++;
         }
-        free(m);
+        
     }
+    
+    imprimir_memoria();
+    free(m);
     //alocar(1,1);
     //alocar(1,1);588888888888888888888888888888888888888888888888888888884}
 }
@@ -324,9 +365,11 @@ void instrucoes_curtas(comando *programa, table_memory *table_aux, int *pc)
                                                     {
                                                         if (!strcmp(programa->instrucao, "RD"))
                                                         {
-                                                            printf("\n:");
+                                                            
+                                                            printf("Escreva:");
                                                             scanf("%d", &num1);
                                                             push(num1);
+                                                            __fpurge(stdout);
                                                         }
                                                         else
                                                         {
@@ -339,7 +382,10 @@ void instrucoes_curtas(comando *programa, table_memory *table_aux, int *pc)
                                                                 if (!strcmp(programa->instrucao, "PRN"))
                                                                 {
                                                                     num1 = pop();
-                                                                    printf("\n%d", num1);
+                                                                    __fpurge(stdout);
+                                                                    __fpurge(stdout);
+                                                                    __fpurge(stdout);
+                                                                    printf("%d\n", num1);
                                                                 }
                                                                 else
                                                             {

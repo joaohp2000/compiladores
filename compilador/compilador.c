@@ -28,14 +28,13 @@ int main(int argc, char **argv){
       printf("Erro ao abrir o arquivo!\n");
       exit(1);
    }
-
+   char cc;
    caracter = fgetc(arquivo);
    while (caracter != EOF)
    {
       pega_token(arquivo, caracter, &token);
       caracter = fgetc(arquivo);
-   }
-   //imprimir_lista(token);
+      }
    int caminho_tam = strlen(caminho);
    
    sprintf(caminho, "%s.obj",argv[1]);

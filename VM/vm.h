@@ -19,14 +19,13 @@ struct tabela_memoria_auxiliar
 typedef struct tabela_memoria_auxiliar table_memory;
 typedef struct comando comando;
 
-extern comando **programa;
-extern table_memory **table_aux;
 //extern int *m,s=0;
 void executar_programa(comando *programa, table_memory *table_aux, int num_intrucoes);
-int ler_programa(FILE *_arquivo, comando **programa, table_memory **table_aux);
+int ler_programa( comando **programa, table_memory **table_aux);
 
 void instrucoes_completas(comando *programa, table_memory *table_aux, int *pc);
 void instrucoes_longas(comando *programa, table_memory *table_aux, int *pc);
 void instrucoes_curtas(comando *programa, table_memory *table_aux, int *pc);
-
+void executar_vm();
+void iniciar_file(char * caminho);
 #endif

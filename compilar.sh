@@ -8,7 +8,7 @@ elif [ $1 = "comp" ]
     then
     rm comp
     echo "Compilando compilador: "
-    gcc compilador.c libs\*c -o comp
+    gcc compilador/compilador.c compilador/libs/*.c -o comp
 elif [ $1 = "vm" ]
     then
     rm vm

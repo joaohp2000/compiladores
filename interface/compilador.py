@@ -1,5 +1,7 @@
 
-from PyQt5 import QtCore, QtGui, QtWidgets 
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget, QApplication, QVBoxLayout, QHBoxLayout
+from PyQt5.QtWidgets import QTextEdit, QLabel, QShortcut, QFileDialog, QMessageBox
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 import os
@@ -7,12 +9,21 @@ import platform
 import subprocess
 import sys
 from tkinter import END
+class Window(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.file_path = None
+    def open_new_file(self):
+        self.file_path = QFileDialog.getOpenFileName(self, "Open new file", "", "All files (*)")
 
+    def salvar_arquivo(self):
+        self.file_path = QFileDialog.getSaveFileName(self, "Save this file  as...", "", "All files (*)")
+        return self.file_path[0]
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 652)
-        self.file_name =""
+        self.file_name =None
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
@@ -27,6 +38,7 @@ class Ui_MainWindow(object):
         self.textEdit.viewport().setProperty("cursor", QtGui.QCursor(QtCore.Qt.IBeamCursor))
         self.textEdit.setReadOnly(False)
         self.textEdit.setObjectName("textEdit")
+        
         self.lineEdit_2 = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit_2.setGeometry(QtCore.QRect(20, 480, 121, 20))
         self.lineEdit_2.setReadOnly(True)
@@ -73,7 +85,7 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Compilador"))
         self.label.setText(_translate("MainWindow", "Arquivo:"))
         self.label_2.setText(_translate("MainWindow", "Error:"))
         self.pushButton.setText(_translate("MainWindow", "Compilar"))
@@ -84,11 +96,15 @@ class Ui_MainWindow(object):
         self.menuArquivo.addAction('Salvar Arquivo', self.salvar_texto)
     
     def salvar_texto(self):
+        salva = Window()
+        if self.file_name ==None:
+            self.file_name = salva.salvar_arquivo()
         texto = self.textEdit.toPlainText()
         local_filename = self.file_name
         if local_filename != None  and local_filename != '':
             out = open(local_filename, "w")
             out.write(texto)
+            #out.write('\x04')
             out.close()
 
     def compilar(self):
@@ -100,12 +116,15 @@ class Ui_MainWindow(object):
             self.textEdit_2.insertPlainText(str(linha))
     
     def selecionar_arquivo(self):
-        root=Tk()
+        abre = Window()
+        abre.open_new_file()
+        """ root=Tk()
         root.title("Compilador")
         root.withdraw()
         root.filename = askopenfilename() #
         root.destroy()
-        local_filename=root.filename
+        local_filename=root.filename """
+        local_filename = abre.file_path[0]
         self.file_name = local_filename
         self.lineEdit.setText(local_filename)
         if local_filename != None  and local_filename != '':
@@ -117,8 +136,10 @@ class Ui_MainWindow(object):
     
 
     def __compilar(self, file):
-        x = subprocess.call(["./comp",file[:-4], "file"])
+        x = subprocess.call([".././comp",file[:-4], "file"])
 
+    
+        
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)

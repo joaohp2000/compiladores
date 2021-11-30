@@ -109,8 +109,9 @@ int pop()
 }
 
 void imprimir_memoria(){
-    printf("\n");
+    
    for(int i=0;i<=s;i++){
-       printf("memoria[%d] = %d\n",i,m[i]);
+       fprintf(stderr,"memoria[%d]          %4d\n",i,m[i]);
    }
+   //printf("\n __^__");
 }
