@@ -3,21 +3,7 @@
 #include <string.h>
 #include <strings.h>
 #include "memoria.h"
-struct comando
-{
-    int tipo;
-    int jump;
-    char instrucao[8];
-    int arg1;
-    int arg2;
-};
-struct tabela_memoria_auxiliar
-{
-    int rotulo;
-    int endereco;
-};
-typedef struct tabela_memoria_auxiliar table_memory;
-typedef struct comando comando;
+#include "vm.h"
 
 enum tipo_intrucoes
 {
@@ -26,34 +12,9 @@ enum tipo_intrucoes
     LONGAS,
     COMPLETAS
 } tipos; //(1 NULL, ADD, JPM 1, ALLOC 0,1)
-#define MAX 100
+
 //extern int *m,s=0;
-void executar_programa(comando *programa, table_memory *table_aux, int num_intrucoes);
-int ler_programa(FILE *_arquivo, comando **programa, table_memory **table_aux);
 
-void instrucoes_completas(comando *programa, table_memory *table_aux, int *pc);
-void instrucoes_longas(comando *programa, table_memory *table_aux, int *pc);
-void instrucoes_curtas(comando *programa, table_memory *table_aux, int *pc);
-
-int main(int argc, char **argv)
-{
-    comando *_programa = NULL;
-    table_memory *_table_aux = NULL;
-    char caminho[MAX]; // = "teste/sint";
-    sprintf(caminho, "%s", argv[1]);
-    printf("Abrindo arquivo %s\n", caminho);
-    FILE *arquivo;
-    if ((arquivo = fopen(caminho, "r")) == NULL)
-    {
-        printf("Erro ao abrir o arquivo!\n");
-        exit(1);
-    }
-    int pc = ler_programa(arquivo, &_programa, &_table_aux);
-    executar_programa(_programa, _table_aux, pc);
-    //printf("\n%d %d\n", _table_aux[0].rotulo, pc);
-    fclose(arquivo);
-    return 0;
-}
 int ler_programa(FILE *_arquivo, comando **programa, table_memory **_table_aux)
 {
     char command[8], arg[3], arg2[3];
@@ -62,15 +23,15 @@ int ler_programa(FILE *_arquivo, comando **programa, table_memory **_table_aux)
     comando *program;
     table_memory *table_aux;
 
-    program = malloc(sizeof(comando));
-    table_aux = malloc(0);
+    program = (comando *)malloc(sizeof(comando));
+    table_aux = (table_memory *)malloc(0);
 
     fscanf(_arquivo, "%s", command);
     sprintf(program->instrucao, "%s", command);
     while (strcmp(command, "HLT"))
     {
         //  printf("Tipo:%d||%d |%s | %d | %d\n", program[i - 1].tipo, program[i - 1].jump, program[i - 1].instrucao, program[i - 1].arg1, program[i - 1].arg2);
-        program = realloc(program, (i + 1) * sizeof(comando));
+        program = (comando *)realloc(program, (i + 1) * sizeof(comando));
         fscanf(_arquivo, "%s", command);
         caracter = fgetc(_arquivo);
         if (caracter == 9)
@@ -83,7 +44,7 @@ int ler_programa(FILE *_arquivo, comando **programa, table_memory **_table_aux)
             program[i].arg2 = 0;
             if (program[i].jump > rotulo)
             {
-                table_aux = realloc(table_aux, sizeof(table_memory) * (program[i].jump + 1));
+                table_aux = (table_memory *)realloc(table_aux, sizeof(table_memory) * (program[i].jump + 1));
                 rotulo = program[i].jump;
             }
             table_aux[program[i].jump].rotulo = program[i].jump;
@@ -140,7 +101,7 @@ int ler_programa(FILE *_arquivo, comando **programa, table_memory **_table_aux)
 void executar_programa(comando *programa, table_memory *table_aux, int num_intrucoes)
 {
     int pc = 0;
-    m = malloc(sizeof(int));
+    m = (memoria *) malloc(sizeof(int));
     m[0] = 0;
     char c;
     if (!strcmp(programa[pc].instrucao, "START"))
@@ -152,14 +113,14 @@ void executar_programa(comando *programa, table_memory *table_aux, int num_intru
             {
             case NULAS: //TIPO NULL
                 /* code */
-               // printf("%d  %s\n", programa[pc].jump, programa[pc].instrucao);
+                //printf("%d  %s\n", programa[pc].jump, programa[pc].instrucao);
                 break;
             case CURTAS: //SEM NENHUM ARGUMENTO
-              //  printf("    %s\n", programa[pc].instrucao);
+                //printf("    %s\n", programa[pc].instrucao);
                 instrucoes_curtas(&(programa[pc]), table_aux, &pc);
                 break;
             case LONGAS: //COM APENAS 1 ARGUMENTO
-              //  printf("    %s %d", programa[pc].instrucao, programa[pc].arg1);
+                 //printf("    %s %d", programa[pc].instrucao, programa[pc].arg1);
                 instrucoes_longas(&(programa[pc]), table_aux, &pc);
                 break;
             case COMPLETAS: //COM OS 2 ARGUMENTOS
@@ -169,8 +130,8 @@ void executar_programa(comando *programa, table_memory *table_aux, int num_intru
             default:
                 break;
             }
-           // imprimir_memoria();
-            //scanf("%c", &c);
+            imprimir_memoria();
+            scanf("%c", &c);
             pc++;
         }
         free(m);
@@ -184,7 +145,7 @@ void instrucoes_completas(comando *programa, table_memory *table_aux, int *pc)
 
     if (!strcmp(programa->instrucao, "ALLOC"))
     {
-        m = realloc(m, sizeof(int) * (s + programa->arg2 + 1)); //alloc 0,1    1,3  4, 11 s=9
+        m = (memoria *)realloc(m, sizeof(int) * (s + programa->arg2 + 1)); //alloc 0,1    1,3  4, 11 s=9
         for (int k = 0; k <= (programa->arg2-1); k++)
         {
             s++; //10
@@ -203,7 +164,7 @@ void instrucoes_completas(comando *programa, table_memory *table_aux, int *pc)
             m[programa->arg1 + k] = m[s];
             s--;
         }
-        m = realloc(m, sizeof(int) * (s + programa->arg1 + 1));
+        m =(memoria *) realloc(m, sizeof(int) * (s + programa->arg1 + 1));
     }
 }
 void instrucoes_longas(comando *programa, table_memory *table_aux, int *pc)

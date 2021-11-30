@@ -8,12 +8,16 @@ elif [ $1 = "comp" ]
     then
     rm comp
     echo "Compilando compilador: "
-    gcc -Wall compilador.c analisador_sintatico/analisador_sintatico.c tabela_simbolos/tabela.c analisador_lexico/analisador_lexico.c analisador_semantico/analisador_semantico.c -o comp -g
+    gcc compilador.c libs\*c -o comp
 elif [ $1 = "vm" ]
     then
     rm vm
     echo "Compilando Maquina Virtual: "
     gcc -Wall VM/vm.c VM/memoria.c -o vm -g
+elif [ $1 = "com2" ]
+    then
+    echo "Compilando Maquina Virtual: "
+    x86_64-w64-mingw32-gcc compilador/compilador.c compilador/libs/*.c -o comp
 else
     echo "Erro:"
 fi

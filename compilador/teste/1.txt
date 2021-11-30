@@ -1,0 +1,29 @@
+  programa muitasFuncoes;
+var final : inteiro;
+    funcao hoi: booleano;
+        var b: inteiro;
+
+    funcao aoba: inteiro;
+                var a : inteiro;
+                inicio
+                   final := final + 1;
+		  escreva(final);
+		  hoi;
+            fim;
+        inicio
+
+        {b:= 2;
+        escreva(b);}
+
+        se final < 3
+            entao aoba
+	
+    fim;
+
+inicio
+
+final:=0;
+
+hoi;
+
+fim.

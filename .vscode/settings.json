@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "tabela.h": "c",
+        "analisador_lexico.h": "c",
+        "analisador_sintatico.h": "c",
+        "vm.h": "c",
+        "stdlib.h": "c"
+    },
+    "C_Cpp.errorSquiggles": "Enabled"
+}
