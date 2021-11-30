@@ -8,9 +8,6 @@ import subprocess
 import sys
 from tkinter import END
 
-
-
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -104,6 +101,7 @@ class Ui_MainWindow(object):
     
     def selecionar_arquivo(self):
         root=Tk()
+        root.title("Compilador")
         root.withdraw()
         root.filename = askopenfilename() #
         root.destroy()

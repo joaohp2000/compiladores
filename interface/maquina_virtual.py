@@ -1,7 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
 from ctypes import *
-libc = cdll.LoadLibrary("../VM/vm.so")
+#libc = cdll.LoadLibrary("../VM/vm.so")
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -10,11 +11,11 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(90, 20, 381, 20))
+        self.lineEdit.setGeometry(QtCore.QRect(90, 20, 620, 20))
         self.lineEdit.setReadOnly(True)
         self.lineEdit.setObjectName("lineEdit")
         self.label = QtWidgets.QLabel(self.centralwidget)
-        self.label.setGeometry(QtCore.QRect(40, 20, 47, 13))
+        self.label.setGeometry(QtCore.QRect(30, 20, 60, 13))
         self.label.setObjectName("label")
         self.textEdit = QtWidgets.QTextEdit(self.centralwidget)
         self.textEdit.setGeometry(QtCore.QRect(20, 70, 541, 391))
@@ -73,12 +74,6 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
         self.actionSelecionar_arquivo = QtWidgets.QAction(MainWindow)
-        self.actionSelecionar_arquivo.setEnabled(True)
-        self.actionSelecionar_arquivo.setAutoRepeat(False)
-        self.actionSelecionar_arquivo.setIconVisibleInMenu(False)
-        self.actionSelecionar_arquivo.setShortcutVisibleInContextMenu(False)
-        self.actionSelecionar_arquivo.setObjectName("actionSelecionar_arquivo")
-        self.menuArquivo.addAction(self.actionSelecionar_arquivo)
         self.menubar.addAction(self.menuArquivo.menuAction())
 
         self.retranslateUi(MainWindow)
@@ -99,7 +94,23 @@ class Ui_MainWindow(object):
         self.lineEdit_4.setText(_translate("MainWindow", "Valor"))
         self.menuArquivo.setTitle(_translate("MainWindow", "Arquivo"))
         self.actionSelecionar_arquivo.setText(_translate("MainWindow", "Selecionar arquivo"))
+        self.menuArquivo.addAction('Selecionar Arquivo', self.selecionar_arquivo)
 
+    def selecionar_arquivo(self):
+        root=Tk()
+        root.title("Maquina virtual")
+        root.withdraw()
+        root.filename = askopenfilename() #
+        root.destroy()
+        local_filename=root.filename
+        self.file_name = local_filename
+        self.lineEdit.setText(local_filename)
+        if local_filename != None  and local_filename != '':
+            out = open(local_filename, "r")
+            self.textEdit.clear()
+            for linha in out.readlines():
+                self.textEdit.insertPlainText(str(linha))           
+            out.close()
 
 if __name__ == "__main__":
     import sys
