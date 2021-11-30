@@ -1,0 +1,4 @@
+  programa teste1;
+                                           var x, y: integer;
+
+                                            procedimento p;

@@ -1,0 +1,1 @@
+/home/joao/Documentos/compiladores/compilador/teste/sint20.obj

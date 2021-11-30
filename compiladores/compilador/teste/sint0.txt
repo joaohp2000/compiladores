@@ -1,0 +1,23 @@
+programa final;
+var opcao,x,y:inteiro;
+  procedimento numeros;
+  var x,y,total: inteiro;
+    procedimento dobro;
+    var media: inteiro;
+    inicio
+      media:=(x+y)*2;
+      escreva(media)
+    fim;
+  inicio
+   leia(x);
+   leia(y);
+   total:= x+y;
+   escreva(total); 
+   dobro           
+  fim;
+inicio
+  leia(opcao);
+  se opcao = 1
+  entao numeros
+  senao escreva(opcao)
+fim.

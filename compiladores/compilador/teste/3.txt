@@ -1,0 +1,47 @@
+programa procedimentos;
+var final : inteiro;
+
+    procedimento hoi;
+        var b: inteiro;
+
+    		procedimento aoba;
+                var a : inteiro;
+			
+			procedimento aoba1;
+                		var a : inteiro;
+					procedimento aoba2;
+                				var a : inteiro;
+                				inicio
+                   			final := final + 1;
+		  				escreva(final);
+		  				hoi;
+            			fim;
+                		inicio
+                   		final := final + 1;
+		  			escreva(final);
+		  			hoi;
+            		fim;
+			
+                inicio
+                   final := final + 1;
+		  escreva(final);
+		  hoi;
+            fim;
+
+        inicio
+
+        {b:= 2;
+        escreva(b);}
+
+        se final < 3
+            entao aoba
+	
+    fim;
+
+inicio
+
+final:=0;
+
+hoi;
+
+fim.

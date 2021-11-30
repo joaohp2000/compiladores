@@ -1,0 +1,68 @@
+programa muitasFuncoes;
+
+var final : inteiro;
+
+    funcao hoi: booleano;
+        var b, n1, n2, n3, i, num : inteiro;
+		   
+    funcao aoba: inteiro;
+         var a :inteiro;
+	
+
+         inicio
+           final := final + 1;
+		  escreva(final);
+		  hoi;
+
+           fim;
+
+	procedimento fibo;
+		
+		procedimento runFibo;
+			inicio
+				
+				
+			fim;
+
+		inicio
+		i:=0;
+    		n1 := 0;
+    		n2 := 1;
+		leia(num);
+		escreva(n1);
+		escreva(n2);
+
+		enquanto i < num faca
+		inicio
+
+		n3:=n1+n2;
+		escreva(n3);
+		n1:=n2;
+		n2:=n3;
+			i := i + 1
+
+			fim; 
+		fim;
+
+
+        inicio
+
+        {b:= 2;
+        escreva(b);}
+
+        se final < 3
+            entao aoba
+		senao fibo
+		
+    fim;
+
+inicio
+
+final:=0;
+
+hoi;
+
+
+
+
+fim.
