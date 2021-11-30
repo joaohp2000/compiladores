@@ -1,2 +1,0 @@
-Abrindo arquivo /home/joao/Documentos/compiladores/compilador/teste/5.obj
-sucesso
