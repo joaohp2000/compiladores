@@ -8,7 +8,7 @@
 
 int main(int argc, char **argv){
    FILE *saida;
-   char caminho[MAX];// = "teste/sint";
+   char caminho[MAX];// = "teste/sint";       
    sprintf(caminho, "%s.txt",argv[1]);
    printf("Abrindo arquivo %s\n",caminho);
    if(argc == 3){
