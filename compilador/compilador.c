@@ -9,7 +9,7 @@
 int main(int argc, char **argv){
    FILE *saida;
    char caminho[MAX];// = "teste/sint";       
-   sprintf(caminho, "%s.txt",argv[1]);
+   sprintf(caminho, "%s.txt",argv[1]);   //Le o nome arquivo  passado por parametro
    printf("Abrindo arquivo %s\n",caminho);
    if(argc == 3){
       if(!strcmp(argv[2], "file")){
@@ -32,7 +32,7 @@ int main(int argc, char **argv){
    caracter = fgetc(arquivo);
    while (caracter != EOF)
    {
-      pega_token(arquivo, caracter, &token);
+      pega_token(arquivo, caracter, &token); //le caractere e passa para funçao pega_token
       caracter = fgetc(arquivo);
       }
    int caminho_tam = strlen(caminho);

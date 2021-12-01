@@ -1,2 +1,2 @@
-Abrindo arquivo /home/joao/Área de Trabalho/compiladores/compilador/teste/4.obj
+Abrindo arquivo /home/joao/Área de Trabalho/compiladores/compilador/teste/5.obj
 sucesso

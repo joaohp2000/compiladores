@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include "analisador_lexico.h"
 
-void error(tokens **token, int num_erro);
+void error(tokens **token, int num_erro); //gera mensagens dos erros 
 void analisador_sintatico(tokens *lista, char *nome_arquivo);
 
-int cp(tokens **token, char * simbolo);
-void analisa_bloco(tokens **lista);
+int cp(tokens **token, char * simbolo); //compara simbolo com token
+void analisa_bloco(tokens **lista);   
 void analisa_et_variaveis(tokens **token);
 void analisa_variaveis(tokens **token);
 void analisa_tipo(tokens **token);
@@ -27,6 +27,6 @@ void analisa_leia(tokens **token);
 void analisa_escreva(tokens **token);
 void analisa_atrib_chprocedimento(tokens **token);
 void analisa_comando_simples(tokens **token);
-void lx(tokens **token);
+void lx(tokens **token); // percorre lista de tokens
 
 #endif

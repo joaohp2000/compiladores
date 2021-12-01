@@ -15,8 +15,7 @@ static void gerencia_pontuacao(FILE *arquivo, char caracter, tokens **token);
 int linha = 1;
 static void gerencia_comentarios(FILE *arquivo, char caracter)
 {
-   // Fazendo isso pra jogar fora os comentarios
-   // {testes}{}
+   // Fazendo isso pra ignorar os comentarios
    while ((caracter != '}') && caracter != EOF)
    {
       caracter = fgetc(arquivo);
@@ -32,6 +31,8 @@ static void gerencia_vazios(FILE *arquivo, char caracter)
    fseek(arquivo, -1L, SEEK_CUR);
 }
 */
+
+// Pega um token e analisa
 void pega_token(FILE *arquivo, char caracter, tokens **token)
 {
 
@@ -102,6 +103,7 @@ void pega_token(FILE *arquivo, char caracter, tokens **token)
 
 static void gerencia_numero(FILE *arquivo, char caracter, tokens **token)
 {
+   // Le o numero inteiro e insere na lista
    char *num = (char *)malloc(sizeof(char));
    *num = caracter;
    caracter = fgetc(arquivo);
@@ -122,11 +124,13 @@ static void gerencia_numero(FILE *arquivo, char caracter, tokens **token)
 
 static void gerencia_palavra(FILE *arquivo, char caracter, tokens **token)
 {
+   // Le a palavra inteira, verifica se é uma palavra reservada e insere na lista
    char *palavra = (char *)malloc(sizeof(char));
    FILE *aux = arquivo;
    *palavra = caracter;
    caracter = fgetc(aux);
 
+   // Fica lendo enquanto for uma letra, até ler palavra completa
    while (isalpha(caracter) || isdigit(caracter))
    {
       size_t tam = strlen(palavra);
@@ -142,7 +146,7 @@ static void gerencia_palavra(FILE *arquivo, char caracter, tokens **token)
 
 static char *verifica_palavras_reservadas(char *palavra)
 {
-
+   // Verifica todas as palavras reservadas do programa
    if (!strcmp(palavra, "programa"))
       return "sprograma";
    else if (!strcmp(palavra, "se"))
@@ -191,6 +195,7 @@ static char *verifica_palavras_reservadas(char *palavra)
 
 static void gerencia_atribuicao(FILE *arquivo, char caracter, tokens **token)
 {
+   // Verifica se é uma atribuição e insere na lista
    char *atribuicao = (char *)malloc(sizeof(char) * 2);
    FILE *aux;
    *atribuicao = caracter;
@@ -213,6 +218,7 @@ static void gerencia_atribuicao(FILE *arquivo, char caracter, tokens **token)
 }
 static void gerencia_opAritmetico(FILE *arquivo, char caracter, tokens **token)
 {
+   // Verifica qual operador aritmetico que é e insere na lista
    char *opAritmetico = (char *)malloc(sizeof(char) * 2);
    *opAritmetico = caracter;
 
@@ -236,6 +242,7 @@ static void gerencia_opAritmetico(FILE *arquivo, char caracter, tokens **token)
 }
 static void gerencia_opRelacional(FILE *arquivo, char caracter, tokens **token)
 {
+   // Verifica qual operador relacional que é e insere na lista
    char *opRelacional = (char *)malloc(sizeof(char) * 3);
    *opRelacional = caracter;
    char opAux;
@@ -288,6 +295,7 @@ static void gerencia_opRelacional(FILE *arquivo, char caracter, tokens **token)
 }
 static void gerencia_pontuacao(FILE *arquivo, char caracter, tokens **token)
 {
+   // Verifica qual a pontuação e insere na lista
    char *pontucao = (char *)malloc(sizeof(char) * 2);
    *pontucao = caracter;
 
@@ -322,7 +330,7 @@ static void gerencia_pontuacao(FILE *arquivo, char caracter, tokens **token)
 
 void inserir_lista(tokens **lista, char lexema[], char simbolo[])
 {
-
+   // Insere o token, lexema e simbolo na lista
    tokens *arquivo;
    arquivo = *lista;
    int lex_tam = strlen(lexema);
@@ -350,7 +358,7 @@ void inserir_lista(tokens **lista, char lexema[], char simbolo[])
 }
 void imprimir_lista(tokens *lista)
 {
-
+   // Imprimir lista inteira
    tokens *arquivo;
    arquivo = lista;
    while (arquivo != NULL)

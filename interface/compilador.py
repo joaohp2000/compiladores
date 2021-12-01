@@ -138,7 +138,7 @@ class Ui_MainWindow(object):
 
     def __compilar(self, file):
         current_dir = os.path.dirname(os.path.realpath(__file__))
-        self.return_compilador = subprocess.call(["compilador.exe",file[:-4], "file"])
+        self.return_compilador = subprocess.call(["./comp",file[:-4], "file"])
 
     
         
