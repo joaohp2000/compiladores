@@ -8,7 +8,7 @@ file_name = arquivo.readline()
 arquivo.close
 
  
-libc = cdll.LoadLibrary("../VM/vm.so")
+libc = ctypes.WinDLL("../VM/vm.so")
 libc.iniciar_file.argtypes=[c_char_p]
 
 name = create_unicode_buffer(file_name)

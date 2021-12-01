@@ -9,10 +9,10 @@ var a, x: inteiro;
 inicio
   se x>1  entao
       x:= 0;
-  leia(z) ;
+  leia(a) ;
   enquanto (a != 89) e (a<= 1000)  {condicao de parada}
   faca inicio
-           a:= x+z
+           a:= x+x
        fim;
   escreva(a)
 fim;

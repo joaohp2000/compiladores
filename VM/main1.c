@@ -8,7 +8,7 @@
 #define MAX 100
 int main()
 {
-    iniciar_file("sint20.obj");
+    iniciar_file("gera1.obj");
     executar_vm();
     return 0;
 }

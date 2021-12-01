@@ -24,6 +24,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 652)
         self.file_name =None
+        self.return_compilador = 0
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
@@ -39,10 +40,7 @@ class Ui_MainWindow(object):
         self.textEdit.setReadOnly(False)
         self.textEdit.setObjectName("textEdit")
         
-        self.lineEdit_2 = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_2.setGeometry(QtCore.QRect(20, 480, 121, 20))
-        self.lineEdit_2.setReadOnly(True)
-        self.lineEdit_2.setObjectName("lineEdit_2")
+      
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
         self.label_2.setGeometry(QtCore.QRect(30, 510, 47, 13))
         self.label_2.setObjectName("label_2")
@@ -54,10 +52,11 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton.setGeometry(QtCore.QRect(630, 530, 111, 23))
         self.pushButton.setObjectName("pushButton")
-        self.lineEdit_3 = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_3.setGeometry(QtCore.QRect(620, 570, 141, 20))
-        self.lineEdit_3.setReadOnly(True)
-        self.lineEdit_3.setObjectName("lineEdit_3")
+
+        self.comp_exec = QtWidgets.QPushButton(self.centralwidget)
+        self.comp_exec.setGeometry(QtCore.QRect(630, 570, 150, 23))
+        self.comp_exec.setObjectName("comp_exec")
+
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setEnabled(True)
@@ -83,6 +82,12 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def compilar_executar(self):
+        self.compilar()
+        print("ok")
+        if self.return_compilador ==1:
+            current_dir = os.path.dirname(os.path.realpath(__file__))
+            subprocess.call(["python3", current_dir+"/maquina_virtual.py", self.file_name[:-4]+".obj"])
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Compilador"))
@@ -90,6 +95,8 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "Error:"))
         self.pushButton.setText(_translate("MainWindow", "Compilar"))
         self.pushButton.clicked.connect(self.compilar)
+        self.comp_exec.setText(_translate("MainWindow", "Compilar e executar"))
+        self.comp_exec.clicked.connect(self.compilar_executar)
         self.menuArquivo.setTitle(_translate("MainWindow", "Arquivo"))
         self.actionSelecionar_arquivo.setText(_translate("MainWindow", "Selecionar arquivo"))
         self.menuArquivo.addAction('Selecionar Arquivo', self.selecionar_arquivo)
@@ -118,12 +125,6 @@ class Ui_MainWindow(object):
     def selecionar_arquivo(self):
         abre = Window()
         abre.open_new_file()
-        """ root=Tk()
-        root.title("Compilador")
-        root.withdraw()
-        root.filename = askopenfilename() #
-        root.destroy()
-        local_filename=root.filename """
         local_filename = abre.file_path[0]
         self.file_name = local_filename
         self.lineEdit.setText(local_filename)
@@ -136,7 +137,8 @@ class Ui_MainWindow(object):
     
 
     def __compilar(self, file):
-        x = subprocess.call([".././comp",file[:-4], "file"])
+        current_dir = os.path.dirname(os.path.realpath(__file__))
+        self.return_compilador = subprocess.call(["compilador.exe",file[:-4], "file"])
 
     
         

@@ -18,22 +18,23 @@ void imprimir_programa2(comando *programa, int pc);
 FILE *_arquivo;
 #define MAX 100
 
-void executar_vm(){
+void executar_vm()
+{
     comando *_programa = NULL;
     table_memory *_table_aux = NULL;
-    
+
     int pc = ler_programa(&_programa, &(_table_aux));
     //imprimir_programa2(_programa, pc);
     executar_programa(_programa, _table_aux, pc);
     //printf("\n%d %d\n", _table_aux[0].rotulo, pc);
     printf("fim do programa\n");
     fclose(_arquivo);
-    
 }
 //extern int *m,s=0;
- 
- void iniciar_file(char * caminho){
-     FILE *arquivo;
+
+void iniciar_file(char *caminho)
+{
+    FILE *arquivo;
     if ((arquivo = fopen(caminho, "r")) == NULL)
     {
         printf("Erro ao abrir o arquivo!\n");
@@ -42,35 +43,95 @@ void executar_vm(){
     _arquivo = arquivo;
 }
 
-
-
-void imprimir_programa2(comando *programa, int pc){
-    for(int i=0;i<pc;i++){
-        printf("%s\n", programa[i].instrucao);
+void imprimir_programa2(comando *programa, int pc)
+{
+    for (int i = 0; i < pc; i++)
+    {
+        printf(" %d %s %d %d\n",programa[i].jump, programa[i].instrucao, programa[i].arg1, programa[i].arg2);
     }
 }
 int ler_programa(comando **programa, table_memory **_table_aux)
 {
     char command[8], arg[3], arg2[3];
     char caracter;
-    int i = 1, rotulo = 0;
+    int i = 0;
+    int rotulo = 0;
     comando *program;
     table_memory *table_aux;
 
     program = (comando *)malloc(sizeof(comando));
     table_aux = (table_memory *)malloc(0);
+    char cc;
 
-    fscanf(_arquivo, "%s", command);
-    sprintf(program->instrucao, "%s", command);
     while (strcmp(command, "HLT"))
     {
-        //  printf("Tipo:%d||%d |%s | %d | %d\n", program[i - 1].tipo, program[i - 1].jump, program[i - 1].instrucao, program[i - 1].arg1, program[i - 1].arg2);
         program = (comando *)realloc(program, (i + 1) * sizeof(comando));
+        caracter = fgetc(_arquivo);
+        if (caracter == 9)
+        {
+            fscanf(_arquivo, "%s", command);
+            if (!strcmp(command, "ALLOC") || !strcmp(command, "DALLOC"))
+            {
+                sprintf(program[i].instrucao, "%s", command);
+                fscanf(_arquivo, "%s", arg);
+                program[i].arg1 = atoi(arg);
+                fscanf(_arquivo, "%s", arg);
+                program[i].arg2 = atoi(arg);
+                program[i].tipo = COMPLETAS;
+            }
+            else
+            {
+                if (!strcmp(command, "START") || !strcmp(command, "ADD") || !strcmp(command, "SUB") || !strcmp(command, "INV") || !strcmp(command, "MULT") || !strcmp(command, "DIVI") || !strcmp(command, "AND") || !strcmp(command, "OR") || !strcmp(command, "NEG") || !strcmp(command, "CME") || !strcmp(command, "CMA") || !strcmp(command, "CEQ") || !strcmp(command, "CDIF") || !strcmp(command, "CMEQ") || !strcmp(command, "CMAQ") || !strcmp(command, "PRN") || !strcmp(command, "RD") || !strcmp(command, "RETURN"))
+                {
+                    sprintf(program[i].instrucao, "%s", command);
+                    program[i].tipo = CURTAS;
+                    program[i].jump = 0;
+                    program[i].arg2 = 0;
+                    program[i].arg1 = 0;
+                }
+                else
+                {
+                    sprintf(program[i].instrucao, "%s", command);
+                    program[i].tipo = LONGAS;
+                    program[i].jump = 0;
+                    fscanf(_arquivo, "%s", arg);
+                    program[i].arg1 = atoi(arg);
+                    program[i].arg2 = 0;
+                }
+            }
+        }
+        else
+        {
+            if (caracter != 32 && caracter != 10 && caracter != 13)
+            {
+                fseek(_arquivo, -1L, SEEK_CUR);
+                fscanf(_arquivo, "%s", command);
+                program[i].jump = atoi(command);
+                fscanf(_arquivo, "%s", command);
+                sprintf(program[i].instrucao, "%s", command);
+                program[i].tipo = NULAS;
+                program[i].arg1 = 0;
+                program[i].arg2 = 0;
+                if (program[i].jump > rotulo)
+                {
+                    table_aux = (table_memory *)realloc(table_aux, sizeof(table_memory) * (program[i].jump + 1));
+                    rotulo = program[i].jump;
+                }
+                table_aux[program[i].jump].rotulo = program[i].jump;
+                table_aux[program[i].jump].endereco = i;
+            }
+            else
+            {
+                i--;
+            }
+        }
+
+        /*   program = (comando *)realloc(program, (i + 1) * sizeof(comando));
         fscanf(_arquivo, "%s", command);
         caracter = fgetc(_arquivo);
         if (caracter == 9)
         {
-            //printf("\nrotulo %s|", command);
+            printf("\nrotulo %s|", command);
             program[i].jump = atoi(command);
             fscanf(_arquivo, "%s", command);
             sprintf(program[i].instrucao, "%s", command);
@@ -84,7 +145,7 @@ int ler_programa(comando **programa, table_memory **_table_aux)
             table_aux[program[i].jump].rotulo = program[i].jump;
             table_aux[program[i].jump].endereco = i;
             program[i].tipo = NULAS;
-            //printf("%s", command);
+            printf("%s", command);
         }
         else
         {
@@ -94,7 +155,7 @@ int ler_programa(comando **programa, table_memory **_table_aux)
                 caracter = fgetc(_arquivo);
                 if (caracter == 32)
                 {
-                    //printf("\n%s", command);
+                    printf("\n%s", command);
                     program[i].arg1 = 0;
                     sprintf(program[i].instrucao, "%s", command);
                     program[i].tipo = CURTAS;
@@ -104,7 +165,7 @@ int ler_programa(comando **programa, table_memory **_table_aux)
                     sprintf(program[i].instrucao, "%s", command);
                     fseek(_arquivo, -1L, SEEK_CUR);
                     fscanf(_arquivo, "%s", arg);
-                    //printf("\n%s | %s", command, arg);
+                    printf("\n%s | %s", command, arg);
                     program[i].arg1 = atoi(arg);
                     caracter = fgetc(_arquivo);
                     caracter = fgetc(_arquivo);
@@ -124,18 +185,24 @@ int ler_programa(comando **programa, table_memory **_table_aux)
                 }
             }
         }
-        i++;
+        cc = getchar();
+        
     }
     //printf("\n%d %d", table_aux[2].endereco, table_aux[2].rotulo);
-    table_aux[0].rotulo = rotulo;
+    table_aux[0].rotulo = rotulo;*/
+    
+        i++;
+    }
     *programa = program;
-    *_table_aux = table_aux;
+    *_table_aux = table_aux; 
+    printf("%d", i);
+    //imprimir_programa2(program, i);
     return i;
 }
 void executar_programa(comando *programa, table_memory *table_aux, int num_intrucoes)
 {
     int pc = 0;
-    m = (memoria *) malloc(sizeof(int));
+    m = (memoria *)malloc(sizeof(int));
     m[0] = 0;
     char c;
     setbuf(stdout, NULL);
@@ -155,7 +222,7 @@ void executar_programa(comando *programa, table_memory *table_aux, int num_intru
                 instrucoes_curtas(&(programa[pc]), table_aux, &pc);
                 break;
             case LONGAS: //COM APENAS 1 ARGUMENTO
-                 //printf("    %s %d", programa[pc].instrucao, programa[pc].arg1);
+                         //printf("    %s %d", programa[pc].instrucao, programa[pc].arg1);
                 instrucoes_longas(&(programa[pc]), table_aux, &pc);
                 break;
             case COMPLETAS: //COM OS 2 ARGUMENTOS
@@ -172,9 +239,8 @@ void executar_programa(comando *programa, table_memory *table_aux, int num_intru
             //scanf("%c", &c);
             pc++;
         }
-        
     }
-    
+
     imprimir_memoria();
     free(m);
     //alocar(1,1);
@@ -187,15 +253,15 @@ void instrucoes_completas(comando *programa, table_memory *table_aux, int *pc)
     if (!strcmp(programa->instrucao, "ALLOC"))
     {
         m = (memoria *)realloc(m, sizeof(int) * (s + programa->arg2 + 1)); //alloc 0,1    1,3  4, 11 s=9
-        for (int k = 0; k <= (programa->arg2-1); k++)
+        for (int k = 0; k <= (programa->arg2 - 1); k++)
         {
-            s++; //10
+            s++;                          //10
             m[s] = m[programa->arg1 + k]; //m[10]=m[9]
         }
-        
+
         for (int k = 0; k < (programa->arg2); k++)
         {
-            m[programa->arg1 + k]=0;
+            m[programa->arg1 + k] = 0;
         }
     }
     else
@@ -205,7 +271,7 @@ void instrucoes_completas(comando *programa, table_memory *table_aux, int *pc)
             m[programa->arg1 + k] = m[s];
             s--;
         }
-        m =(memoria *) realloc(m, sizeof(int) * (s + programa->arg1 + 1));
+        m = (memoria *)realloc(m, sizeof(int) * (s + programa->arg1 + 1));
     }
 }
 void instrucoes_longas(comando *programa, table_memory *table_aux, int *pc)
@@ -224,7 +290,8 @@ void instrucoes_longas(comando *programa, table_memory *table_aux, int *pc)
         if (!strcmp(programa->instrucao, "JMPF"))
         {
             int aux = pop();
-            if (aux == 0){
+            if (aux == 0)
+            {
                 *pc_aux = table_aux[programa->arg1].endereco;
             }
         }
@@ -365,7 +432,7 @@ void instrucoes_curtas(comando *programa, table_memory *table_aux, int *pc)
                                                     {
                                                         if (!strcmp(programa->instrucao, "RD"))
                                                         {
-                                                            
+
                                                             printf("Escreva:");
                                                             scanf("%d", &num1);
                                                             push(num1);
@@ -388,15 +455,14 @@ void instrucoes_curtas(comando *programa, table_memory *table_aux, int *pc)
                                                                     printf("%d\n", num1);
                                                                 }
                                                                 else
-                                                            {
-                                                                if (!strcmp(programa->instrucao, "INV"))
                                                                 {
-                                                                    num1 = pop();
-                                                                    push(num1*(-1));
+                                                                    if (!strcmp(programa->instrucao, "INV"))
+                                                                    {
+                                                                        num1 = pop();
+                                                                        push(num1 * (-1));
+                                                                    }
                                                                 }
                                                             }
-                                                            }
-                                                            
                                                         }
                                                     }
                                                 }

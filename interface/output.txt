@@ -1,0 +1,2 @@
+Abrindo arquivo /home/joao/Área de Trabalho/compiladores/compilador/teste/4.obj
+sucesso
